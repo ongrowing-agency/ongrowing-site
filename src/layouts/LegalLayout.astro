@@ -1,0 +1,31 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Topbar from '../components/Topbar.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  breadcrumb: string;
+  updatedAt: string;
+}
+const { title, description, breadcrumb, updatedAt } = Astro.props;
+---
+<BaseLayout title={`${title} — Ongrowing`} description={description}>
+  <Topbar />
+
+  <div class="legal-header">
+    <div class="legal-breadcrumb">
+      <a href="/">Ongrowing</a>
+      <span class="sep">/</span>
+      <span class="current">{breadcrumb}</span>
+    </div>
+    <h1>{title}</h1>
+    <p class="legal-updated">Atualizado em {updatedAt}</p>
+  </div>
+
+  <article class="legal-article">
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

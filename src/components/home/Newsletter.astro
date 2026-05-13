@@ -1,0 +1,78 @@
+---
+---
+<section id="newsletter">
+  <div class="section-header reveal">
+    <span class="section-num">06 · Newsletter</span>
+    <div class="section-title-group">
+      <h2>Análise que vale mais do que<br><em>relatório de agência.</em></h2>
+      <p class="lead">Conteúdo direto sobre aquisição digital para e-commerces — sem enrolação, sem teoria sem aplicação prática.</p>
+    </div>
+  </div>
+  <div class="nl-body">
+    <div class="reveal">
+      <div class="promise-item">
+        <div class="promise-icon"><svg class="icon"><use href="#i-trending"/></svg></div>
+        <div class="promise-text">
+          <h4>Análises de operações reais</h4>
+          <p>Cases, decisões e aprendizados de quem está na operação — não de quem só faz conteúdo sobre operação.</p>
+        </div>
+      </div>
+      <div class="promise-item">
+        <div class="promise-icon"><svg class="icon"><use href="#i-target"/></svg></div>
+        <div class="promise-text">
+          <h4>Direto ao ponto, sem frequência abusiva</h4>
+          <p>Enviamos quando temos algo que vale o seu tempo. Sem enchimento de pauta, sem newsletter obrigatória de segunda.</p>
+        </div>
+      </div>
+      <div class="promise-item">
+        <div class="promise-icon"><svg class="icon"><use href="#i-shield"/></svg></div>
+        <div class="promise-text">
+          <h4>Sem spam, sem compartilhamento</h4>
+          <p>Seus dados ficam só com a Ongrowing. Desinscrição em um clique, sem formulário de saída exigido.</p>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <form class="nl-form" id="main-nl-form">
+        <input class="nl-input" type="text" placeholder="Seu nome" autocomplete="name" aria-label="Nome" name="name" required>
+        <input class="nl-input" type="email" placeholder="Seu melhor e-mail" autocomplete="email" aria-label="E-mail" name="email" required>
+        <button class="btn btn-mint nl-btn" type="submit">
+          <span class="btn-label">Quero receber</span>
+          <svg class="icon"><use href="#i-arrow-right"/></svg>
+        </button>
+      </form>
+      <p class="nl-success" id="main-nl-success" style="display:none;color:var(--accent);font-family:var(--font-display);font-size:14px;font-weight:600;margin-top:12px;">
+        ✓ Cadastro realizado! Fique de olho na caixa de entrada.
+      </p>
+      <p class="nl-error" id="main-nl-error" style="display:none;color:var(--danger);font-family:var(--font-display);font-size:14px;margin-top:12px;">
+        Algo deu errado. Tente novamente em instantes.
+      </p>
+      <p class="nl-disc">LGPD-compliant · Seus dados protegidos · Desinscrição a qualquer momento</p>
+    </div>
+  </div>
+</section>
+
+<script>
+import { subscribeNewsletter } from '../../scripts/newsletter.js';
+const form = document.getElementById('main-nl-form') as HTMLFormElement | null;
+if (form) {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const label = btn.querySelector('.btn-label') as HTMLElement;
+    const original = label.textContent;
+    label.textContent = 'Enviando…';
+    btn.disabled = true;
+    const ok = await subscribeNewsletter(fd.get('name') as string, fd.get('email') as string);
+    if (ok) {
+      form.style.display = 'none';
+      document.getElementById('main-nl-success')!.style.display = 'block';
+    } else {
+      document.getElementById('main-nl-error')!.style.display = 'block';
+      label.textContent = original;
+      btn.disabled = false;
+    }
+  });
+}
+</script>

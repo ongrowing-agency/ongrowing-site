@@ -1,0 +1,30 @@
+---
+const clients = [
+  { name: 'Masterpinus', tag: 'Painéis de madeira' },
+  { name: 'Livraria Cordeiro', tag: 'E-commerce' },
+  { name: 'Braslimpo', tag: 'Suprimentos' },
+  { name: 'Motorola', tag: 'Eletrônicos' },
+  { name: 'New York Pets', tag: 'Pet store · EUA' },
+  { name: 'Login Informática', tag: 'Informática' },
+];
+---
+<div id="clientes">
+  <p class="clientes-label">Quem já cresceu com a Ongrowing</p>
+  <div class="carousel-wrap">
+    <div class="carousel-track" id="track">
+      {clients.map(c => (
+        <div class="client-logo">
+          <div class="logo-inner">
+            <div class="logo-text">{c.name}</div>
+            <div class="logo-tag">{c.tag}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+const track = document.getElementById('track');
+if (track) track.innerHTML += track.innerHTML;
+</script>

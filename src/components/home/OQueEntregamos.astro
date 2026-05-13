@@ -1,0 +1,66 @@
+---
+const items = [
+  {
+    icon: 'i-compass',
+    label: 'Diagnóstico completo',
+    before: 'Operação rodando no escuro, sem clareza de onde estão os gargalos e onde o dinheiro está sendo desperdiçado.',
+    title: 'Mapeamento de toda a operação de aquisição: canais, funil, margem, ticket médio, pontos de vazamento.',
+    desc: 'O diagnóstico define o que vamos fazer — e o que não vamos. Sem ele, não existe proposta.',
+  },
+  {
+    icon: 'i-megaphone',
+    label: 'Tráfego pago (Meta + Google)',
+    before: 'Tráfego pago rodando sem estratégia, com criativos genéricos e orçamento distribuído sem critério.',
+    title: 'Campanhas estruturadas com funil completo, criativos com ângulo certo e otimização contínua baseada em dado.',
+    desc: 'Meta Ads e Google Ads integrados, não competindo entre si pelo mesmo orçamento.',
+  },
+  {
+    icon: 'i-workflow',
+    label: 'Automações de marketing',
+    before: 'Leads e clientes sem nenhuma nutrição automática depois do primeiro contato ou da primeira compra.',
+    title: 'Fluxos automáticos que trabalham enquanto você dorme — boas-vindas, reengajamento, pós-venda, upsell.',
+    desc: 'Integrado com seu CRM e plataforma de e-commerce desde o primeiro dia.',
+  },
+  {
+    icon: 'i-bot',
+    label: 'Agente IA + Recuperação de carrinho',
+    before: 'Atendimento manual e lento, e carrinho abandonado que nunca recebe nenhum contato ativo de recuperação.',
+    title: 'Agente de atendimento com IA que qualifica e responde. Automação ativa de recuperação de carrinho com sequência de mensagens.',
+    desc: 'Mais conversão sem aumentar custo operacional.',
+  },
+  {
+    icon: 'i-mail',
+    label: 'E-mail marketing + Integrações ERP',
+    before: 'Base de e-mails parada, sem segmentação, sem cadência — ou pior, uma base que simplesmente não existe.',
+    title: 'Estratégia de e-mail com segmentação, cadências e automações. Integração com ERP alimentando toda a operação com dados reais.',
+    desc: 'Canal próprio que não depende de algoritmo de terceiro para funcionar.',
+  },
+];
+---
+<section id="servicos">
+  <div class="section-header reveal">
+    <span class="section-num">04 · O que entregamos</span>
+    <div class="section-title-group">
+      <h2>Cinco pilares. Um sistema só.</h2>
+      <p class="lead">Cada pilar da Arquitetura de Aquisição ataca um ponto específico da operação. Nada solto — tudo integrado.</p>
+    </div>
+  </div>
+  <div class="transform-flow">
+    {items.map(item => (
+      <div class="transform-item reveal">
+        <div class="t-icon-col">
+          <div class="icon-wrap"><svg class="icon"><use href={`#${item.icon}`}/></svg></div>
+        </div>
+        <div class="t-before">
+          <p class="t-label">Antes</p>
+          <p>{item.before}</p>
+        </div>
+        <div class="t-after">
+          <p class="t-label">{item.label}</p>
+          <p class="t-title">{item.title}</p>
+          <p class="t-desc">{item.desc}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

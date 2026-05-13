@@ -1,0 +1,38 @@
+---
+export interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  level: string;
+  duration: string;
+  lessonCount?: number;
+  variant?: number;
+}
+
+const { slug, title, description, category, level, duration, lessonCount, variant = 1 } = Astro.props;
+---
+<a href={`/cursos/${slug}/`} class="course-card">
+  <div class={`course-banner banner-v${variant}`}>
+    <div class="glyph">
+      <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+    </div>
+    <span class="banner-tag">{category}</span>
+    {lessonCount && <span class="banner-lessons">{lessonCount} aulas</span>}
+  </div>
+  <div class="course-body">
+    <h2 class="course-title">{title}</h2>
+    <p class="course-desc">{description}</p>
+    <div class="course-footer">
+      <div class="course-meta">
+        <span class="course-level">{level}</span>
+        <span class="course-duration">
+          <svg class="icon"><use href="#i-clock"/></svg> {duration}
+        </span>
+      </div>
+      <span class="course-cta">
+        Acessar <svg class="icon"><use href="#i-arrow-right"/></svg>
+      </span>
+    </div>
+  </div>
+</a>

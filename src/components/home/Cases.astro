@@ -1,0 +1,79 @@
+---
+const cases = [
+  {
+    variant: '',
+    nicho: 'Painéis de madeira · E-commerce B2B/B2C',
+    result: '3×',
+    resultLabel: 'Crescimento de galpão em 3 anos de parceria contínua',
+    name: 'Masterpinus',
+    desc: 'ROAS consistente e crescimento operacional real — a empresa mudou de galpão três vezes por volume de pedidos desde o início da parceria.',
+    duration: '3 anos de parceria ativa',
+  },
+  {
+    variant: 'dark',
+    nicho: 'Livraria · E-commerce',
+    result: 'R$1M',
+    resultLabel: 'Faturado em 6 meses de consultoria',
+    name: 'Livraria Cordeiro',
+    desc: 'Arquitetura de aquisição montada do zero — tráfego pago e automações integradas levaram a livraria ao primeiro milhão em menos de um semestre.',
+    duration: '6 meses · resultado documentado',
+  },
+  {
+    variant: 'mid',
+    nicho: 'Suprimentos · E-commerce B2B',
+    result: '+15%',
+    resultLabel: 'Aumento de faturamento em 2 meses',
+    name: 'Braslimpo',
+    desc: 'Reestruturação dos canais de aquisição e automação de relacionamento com cliente resultaram em crescimento mensurável em menos de 60 dias.',
+    duration: '2 meses · resultado mensurável',
+  },
+  {
+    variant: '',
+    nicho: 'Eletrônicos · Lançamento nacional',
+    result: 'R$10M',
+    resultLabel: 'Em vendas na primeira semana de lançamento',
+    name: 'Motorola',
+    desc: 'Operação de mídia paga para o lançamento das babás eletrônicas Motorola no Brasil — dez milhões de reais em vendas nos primeiros sete dias.',
+    duration: 'Lançamento nacional · 7 dias',
+  },
+  {
+    variant: 'dark',
+    nicho: 'Pet store · E-commerce · EUA',
+    result: 'ROAS 14',
+    resultLabel: 'Em 6 meses num mercado altamente competitivo',
+    name: 'New York Pets',
+    desc: 'Performance sólida e sustentada em um dos mercados mais agressivos para e-commerce — pet store nos EUA com concorrência intensa e margens pressionadas.',
+    duration: '6 meses · mercado americano',
+  },
+  {
+    variant: 'mid',
+    nicho: 'Informática · E-commerce B2C',
+    result: 'ROAS 40',
+    resultLabel: 'O maior ROAS documentado no portfólio da Ongrowing',
+    name: 'Login Informática',
+    desc: '12 meses de operação estruturada entregaram o melhor retorno sobre investimento em mídia já documentado no portfólio — ROAS 40 consistente.',
+    duration: '12 meses · recorde de portfólio',
+  },
+];
+---
+<section id="cases">
+  <div class="section-header reveal">
+    <span class="section-num">05 · Cases</span>
+    <div class="section-title-group">
+      <h2>Resultado em operações reais.</h2>
+      <p class="lead">Produto validado, dono presente e tempo de método aplicado — é o que aparece nos números abaixo.</p>
+    </div>
+  </div>
+  <div class="cases-grid">
+    {cases.map(c => (
+      <div class={`case-card reveal${c.variant ? ` ${c.variant}` : ''}`}>
+        <span class="case-nicho">{c.nicho}</span>
+        <div class="case-result">{c.result}</div>
+        <p class="case-result-label">{c.resultLabel}</p>
+        <h3 class="case-name">{c.name}</h3>
+        <p class="case-desc">{c.desc}</p>
+        <span class="case-duration">{c.duration}</span>
+      </div>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,32 @@
+---
+export interface Props {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  publishedAt: string;
+  readTime?: number;
+  variant?: number;
+}
+
+const { slug, title, excerpt, category, publishedAt, readTime, variant = 1 } = Astro.props;
+
+const date = new Date(publishedAt).toLocaleDateString('pt-BR', {
+  day: '2-digit', month: 'short', year: 'numeric'
+});
+---
+<a href={`/blog/${slug}/`} class="post-card">
+  <div class={`post-card-img img-v${variant}`}>
+    <span class="post-card-tag">{category}</span>
+    <div class="glyph">
+      <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+    </div>
+  </div>
+  <span class="post-category">{category}</span>
+  <h3>{title}</h3>
+  <p>{excerpt}</p>
+  <div class="post-meta">
+    <span class="item">{date}</span>
+    {readTime && <><span class="dot"></span><span class="item">{readTime} min</span></>}
+  </div>
+</a>

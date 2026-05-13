@@ -1,0 +1,4 @@
+# Redirect ongrowing.com.br to ongrowing.agency
+https://ongrowing.com.br/* https://ongrowing.agency/:splat 301!
+https://www.ongrowing.com.br/* https://ongrowing.agency/:splat 301!
+https://www.ongrowing.agency/* https://ongrowing.agency/:splat 301!

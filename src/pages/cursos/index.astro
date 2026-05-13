@@ -1,0 +1,447 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Topbar from '../../components/Topbar.astro';
+import { getCourses } from '../../lib/sanity';
+
+let courses: any[] = [];
+try {
+  courses = await getCourses();
+} catch {
+  // fallback to static data
+}
+
+const staticCourses = [
+  { slug: { current: 'trafego-pago-zero-ecommerce' }, title: 'Tráfego Pago do Zero para E-commerce', description: 'Como estruturar campanhas de Meta Ads e Google Ads desde o início — sem desperdiçar orçamento e com foco em resultado mensurável desde a primeira semana.', category: 'Tráfego pago', level: 'Iniciante', duration: '4h 30min', lessonCount: 12, variant: 1 },
+  { slug: { current: 'diagnostico-aquisicao-digital' }, title: 'Diagnóstico de Aquisição Digital', description: 'Aprenda a mapear toda a operação de aquisição de um e-commerce — identificar gargalos, calcular o custo real por cliente e priorizar o que vai mover o faturamento.', category: 'Estratégia', level: 'Intermediário', duration: '3h 10min', lessonCount: 8, variant: 2 },
+  { slug: { current: 'automacoes-marketing-ecommerce' }, title: 'Automações de Marketing para E-commerce', description: 'Fluxos automáticos que trabalham enquanto você dorme — boas-vindas, recuperação de carrinho, reengajamento e pós-venda com ferramentas acessíveis e integradas.', category: 'Automação', level: 'Intermediário', duration: '5h 45min', lessonCount: 15, variant: 3 },
+  { slug: { current: 'email-marketing-converte' }, title: 'E-mail Marketing que Converte', description: 'Da captação de lista à sequência que vende — como segmentar, escrever e automatizar e-mails que geram receita sem depender de algoritmo de terceiro.', category: 'E-mail', level: 'Iniciante', duration: '3h 50min', lessonCount: 10, variant: 4 },
+  { slug: { current: 'arquitetura-funil-ecommerce' }, title: 'Arquitetura de Funil para E-commerce', description: 'Como montar um funil de aquisição completo — do primeiro clique ao cliente recorrente — integrando tráfego pago, e-mail e automações numa estrutura única e previsível.', category: 'Estratégia', level: 'Avançado', duration: '4h 00min', lessonCount: 9, variant: 5 },
+  { slug: { current: 'google-ads-ecommerce-search-shopping' }, title: 'Google Ads para E-commerce: Search e Shopping', description: 'Estrutura de campanhas de Search e Shopping no Google Ads com foco em ROAS — segmentação, lances, extensões e otimização baseada em dados reais de e-commerce.', category: 'Tráfego pago', level: 'Intermediário', duration: '4h 20min', lessonCount: 11, variant: 6 },
+];
+
+const displayCourses = courses.length > 0 ? courses : staticCourses;
+const categories = ['Todos', 'Tráfego pago', 'Automação', 'Estratégia', 'E-mail'];
+---
+<BaseLayout
+  title="Cursos — Ongrowing"
+  description="Conteúdo direto de quem opera — diagnóstico, tráfego, automações e IA aplicados em e-commerce real."
+>
+  <Fragment slot="head">
+    <style>
+      .page-header {
+        background: var(--og-deep-800);
+        padding: var(--sp-12) var(--gutter) var(--sp-10);
+        position: relative;
+        overflow: hidden;
+      }
+      @media (min-width: 768px) { .page-header { padding: var(--sp-16) var(--gutter) var(--sp-12); } }
+      @media (min-width: 1024px) { .page-header { padding: var(--sp-20) var(--gutter) var(--sp-16); } }
+      .page-header::before {
+        content: '';
+        position: absolute;
+        top: -100px; right: -100px;
+        width: 520px; height: 520px;
+        background: radial-gradient(circle, rgba(121,217,199,.08) 0%, transparent 65%);
+        pointer-events: none;
+      }
+      .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 100%; height: 1px;
+        background: linear-gradient(90deg, var(--accent), transparent 55%);
+        opacity: .7;
+      }
+      .page-header-mark {
+        position: absolute;
+        bottom: -60px; right: -40px;
+        width: 360px;
+        opacity: .04;
+        filter: invert(1);
+        pointer-events: none;
+      }
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        font-family: var(--font-display);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        font-weight: 700;
+        color: rgba(255,255,255,.35);
+        margin-bottom: var(--sp-6);
+      }
+      .breadcrumb a { color: rgba(255,255,255,.35); text-decoration: none; transition: color var(--dur-fast) var(--ease-out); }
+      .breadcrumb a:hover { color: rgba(255,255,255,.7); }
+      .breadcrumb .sep { opacity: .4; }
+      .breadcrumb .current { color: var(--accent); opacity: .85; }
+      .page-header h1 {
+        font-family: var(--font-display);
+        font-size: clamp(28px, 5.2vw, 48px);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -1.2px;
+        line-height: 1.08;
+        margin-bottom: var(--sp-4);
+        text-wrap: balance;
+      }
+      .page-header h1 em { font-style: italic; color: var(--accent); font-weight: 800; }
+      .page-header p {
+        font-family: var(--font-text);
+        font-size: 17px;
+        color: rgba(255,255,255,.55);
+        font-weight: 300;
+        max-width: 560px;
+        line-height: 1.65;
+      }
+
+      .courses-meta {
+        padding: var(--sp-5) var(--gutter);
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-4);
+        flex-wrap: wrap;
+      }
+      .courses-count {
+        font-family: var(--font-display);
+        font-size: 11px;
+        color: var(--fg-subtle);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        display: inline-flex;
+        align-items: baseline;
+        gap: var(--sp-2);
+      }
+      .courses-count strong { color: var(--fg); font-size: 18px; font-weight: 700; }
+      .filter-pills { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+      .pill {
+        padding: 6px 14px;
+        border-radius: var(--r-pill);
+        font-family: var(--font-display);
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--dur-fast) var(--ease-out);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        border: 1px solid var(--border);
+        color: var(--fg-muted);
+        background: transparent;
+      }
+      .pill:hover { border-color: var(--accent-strong); color: var(--fg); }
+      .pill.active { background: var(--og-deep-800); color: #fff; border-color: var(--og-deep-800); }
+
+      .courses-grid-wrap { padding: var(--sp-10) var(--gutter); }
+      @media (min-width: 768px) { .courses-grid-wrap { padding: var(--sp-12) var(--gutter); } }
+      @media (min-width: 1024px) { .courses-grid-wrap { padding: var(--sp-16) var(--gutter) var(--sp-20); } }
+      .courses-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--sp-5);
+      }
+      @media (min-width: 640px) { .courses-grid { grid-template-columns: 1fr 1fr; gap: var(--sp-6); } }
+      @media (min-width: 1100px) { .courses-grid { grid-template-columns: repeat(3, 1fr); } }
+
+      .course-card {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        overflow: hidden;
+        transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+      }
+      .course-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+      .course-banner {
+        height: 180px;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        padding: var(--sp-5) var(--sp-6);
+        overflow: hidden;
+        background: var(--og-deep-800);
+      }
+      .course-banner::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 0%, transparent 50%, rgba(2,24,33,.5) 100%);
+        pointer-events: none;
+      }
+      .course-banner .glyph {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: .08;
+        color: var(--accent);
+      }
+      .course-banner .glyph svg { width: 140px; height: 140px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+
+      .banner-v1 { background: var(--og-deep-800); }
+      .banner-v1 .glyph { transform: translateX(28%) scale(1.4); opacity: .06; color: var(--og-mint-500); }
+      .banner-v2 { background: var(--og-deep-700); }
+      .banner-v2 .glyph { transform: translateX(-22%) translateY(8%) scale(1.6); opacity: .07; color: var(--og-mint-400); }
+      .banner-v3 { background: var(--og-deep-900); }
+      .banner-v3 .glyph { transform: translateX(24%) translateY(-6%) scale(1.2); opacity: .09; color: var(--og-mint-500); }
+      .banner-v4 { background: var(--og-deep-800); background-image: linear-gradient(135deg, var(--og-deep-800) 0%, var(--og-deep-600) 100%); }
+      .banner-v4 .glyph { transform: translateX(-30%) scale(1.5); opacity: .06; color: var(--og-mint-300); }
+      .banner-v5 { background: var(--og-deep-600); }
+      .banner-v5 .glyph { transform: translateX(28%) translateY(10%) scale(1.4); opacity: .07; color: var(--og-mint-200); }
+      .banner-v6 { background: var(--og-deep-900); background-image: linear-gradient(135deg, var(--og-deep-900) 0%, var(--og-deep-700) 100%); }
+      .banner-v6 .glyph { transform: translateY(-6%) scale(1.3); opacity: .08; color: var(--og-mint-500); }
+
+      .banner-tag {
+        position: relative;
+        z-index: 1;
+        font-family: var(--font-display);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 700;
+        color: var(--accent);
+        background: rgba(121,217,199,.1);
+        border: 1px solid rgba(121,217,199,.25);
+        padding: 4px 10px;
+        border-radius: var(--r-pill);
+      }
+      .banner-lessons {
+        position: absolute;
+        top: var(--sp-5); right: var(--sp-6);
+        z-index: 1;
+        font-family: var(--font-display);
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255,255,255,.6);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-2);
+        letter-spacing: .2px;
+      }
+      .banner-lessons::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: .75;
+      }
+
+      .course-body { padding: var(--sp-8); flex: 1; display: flex; flex-direction: column; }
+      .course-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--fg); line-height: 1.3; margin-bottom: var(--sp-3); letter-spacing: -.2px; }
+      .course-desc { font-family: var(--font-text); font-size: 14px; color: var(--fg-muted); line-height: 1.7; flex: 1; margin-bottom: var(--sp-6); }
+      .course-footer { display: flex; align-items: center; justify-content: space-between; padding-top: var(--sp-5); border-top: 1px solid var(--border); }
+      .course-meta { display: flex; flex-direction: column; gap: 2px; }
+      .course-level { font-family: var(--font-display); font-size: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: var(--fg-subtle); }
+      .course-duration { font-family: var(--font-display); font-size: 12px; color: var(--fg-muted); font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
+      .course-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--og-deep-800);
+        color: #fff;
+        text-decoration: none;
+        padding: 9px 16px;
+        border-radius: var(--r-sm);
+        font-family: var(--font-display);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .3px;
+        transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+      }
+      .course-cta:hover { background: var(--og-deep-700); }
+      .course-cta:hover .icon { transform: translateX(2px); }
+      .course-cta .icon { transition: transform var(--dur-base) var(--ease-out); font-size: 13px; }
+
+      .courses-newsletter {
+        margin: 0 var(--gutter) var(--sp-16);
+        background: var(--og-deep-800);
+        border-radius: var(--r-xl);
+        padding: var(--sp-8);
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: center;
+        gap: var(--sp-8);
+        position: relative;
+        overflow: hidden;
+      }
+      @media (min-width: 768px) { .courses-newsletter { padding: var(--sp-10) var(--sp-12); } }
+      @media (min-width: 1024px) { .courses-newsletter { padding: var(--sp-12) var(--sp-16); grid-template-columns: 1fr auto; gap: var(--sp-10); } }
+      .courses-newsletter::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(121,217,199,.09) 0%, transparent 68%);
+        pointer-events: none;
+      }
+      .nl-text { position: relative; z-index: 1; }
+      .nl-text h3 { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: #fff; letter-spacing: -.5px; margin-bottom: var(--sp-2); line-height: 1.2; }
+      .nl-text h3 em { font-style: italic; color: var(--accent); }
+      .nl-text p { font-family: var(--font-text); font-size: 15px; color: rgba(255,255,255,.5); line-height: 1.65; max-width: 460px; }
+      .nl-form-inline {
+        display: flex;
+        gap: var(--sp-3);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+        flex-wrap: wrap;
+      }
+      .nl-form-inline input {
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: var(--r-md);
+        padding: 14px 18px;
+        font-family: var(--font-text);
+        font-size: 14px;
+        color: #fff;
+        outline: none;
+        flex: 1;
+        min-width: 160px;
+        width: auto;
+        transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+      }
+      @media (min-width: 1024px) { .nl-form-inline input { flex: none; width: 200px; } }
+      .nl-form-inline input::placeholder { color: rgba(255,255,255,.3); }
+      .nl-form-inline input:focus { border-color: rgba(121,217,199,.5); background: rgba(255,255,255,.07); box-shadow: none; }
+      .nl-msg { font-family: var(--font-display); font-size: 12px; font-weight: 600; margin-top: var(--sp-3); letter-spacing: .3px; }
+      .nl-msg.ok { color: var(--accent); }
+      .nl-msg.err { color: #ff6b6b; }
+    </style>
+  </Fragment>
+
+  <Topbar />
+
+  <div class="page-header">
+    <img src="/assets/mark-light.png" alt="" class="page-header-mark" aria-hidden="true">
+    <div class="breadcrumb">
+      <a href="/">Ongrowing</a>
+      <span class="sep">/</span>
+      <span class="current">Cursos</span>
+    </div>
+    <h1>Aprenda a montar uma<br><em>máquina de aquisição.</em></h1>
+    <p>Conteúdo direto de quem opera — diagnóstico, tráfego, automações e IA aplicados em operações reais de e-commerce.</p>
+  </div>
+
+  <div class="courses-meta">
+    <div class="courses-count"><strong>{displayCourses.length}</strong> cursos disponíveis</div>
+    <div class="filter-pills">
+      {categories.map((cat) => (
+        <button class={`pill${cat === 'Todos' ? ' active' : ''}`} data-filter={cat}>{cat}</button>
+      ))}
+    </div>
+  </div>
+
+  <div class="courses-grid-wrap">
+    <div class="courses-grid" id="courses-grid">
+      {displayCourses.map((course: any, i: number) => {
+        const variant = course.variant || ((i % 6) + 1);
+        const slug = course.slug?.current || course.slug;
+        return (
+          <a href={`/cursos/${slug}/`} class="course-card" data-category={course.category}>
+            <div class={`course-banner banner-v${variant}`}>
+              <div class="glyph">
+                <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+              </div>
+              <span class="banner-tag">{course.category}</span>
+              {course.lessonCount && <span class="banner-lessons">{course.lessonCount} aulas</span>}
+            </div>
+            <div class="course-body">
+              <h2 class="course-title">{course.title}</h2>
+              <p class="course-desc">{course.description}</p>
+              <div class="course-footer">
+                <div class="course-meta">
+                  <span class="course-level">{course.level}</span>
+                  {course.duration && (
+                    <span class="course-duration">
+                      <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      {course.duration}
+                    </span>
+                  )}
+                </div>
+                <span class="course-cta">
+                  Acessar
+                  <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+              </div>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+
+  <div class="courses-newsletter">
+    <div class="nl-text">
+      <h3>Novo curso toda vez que<br><em>tiver algo que vale o seu tempo.</em></h3>
+      <p>Cadastre-se na newsletter e seja o primeiro a saber quando um novo conteúdo for ao ar.</p>
+    </div>
+    <form class="nl-form-inline" id="nl-form-cursos">
+      <input type="text" id="nl-name-cursos" placeholder="Seu nome" aria-label="Nome" autocomplete="name">
+      <input type="email" id="nl-email-cursos" placeholder="Seu e-mail" aria-label="E-mail" required autocomplete="email">
+      <button class="btn btn-mint" type="submit">
+        Quero receber
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+      <p class="nl-msg" id="nl-msg-cursos" style="display:none"></p>
+    </form>
+  </div>
+
+  <Fragment slot="scripts">
+    <script>
+      document.querySelectorAll('.pill').forEach(p => {
+        p.addEventListener('click', () => {
+          document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+          p.classList.add('active');
+          const filter = (p as HTMLElement).dataset.filter;
+          document.querySelectorAll('.course-card').forEach((card: any) => {
+            const cat = card.dataset.category;
+            card.style.display = (filter === 'Todos' || cat === filter) ? '' : 'none';
+          });
+        });
+      });
+
+      const form = document.getElementById('nl-form-cursos') as HTMLFormElement;
+      const msg = document.getElementById('nl-msg-cursos') as HTMLElement;
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = (document.getElementById('nl-name-cursos') as HTMLInputElement).value;
+          const email = (document.getElementById('nl-email-cursos') as HTMLInputElement).value;
+          const btn = form.querySelector('button[type=submit]') as HTMLButtonElement;
+          btn.disabled = true;
+          try {
+            const res = await fetch('/api/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, email }),
+            });
+            msg.style.display = '';
+            if (res.ok) {
+              msg.className = 'nl-msg ok';
+              msg.textContent = 'Inscrito com sucesso!';
+              form.reset();
+            } else {
+              msg.className = 'nl-msg err';
+              msg.textContent = 'Algo deu errado. Tente novamente.';
+              btn.disabled = false;
+            }
+          } catch {
+            msg.style.display = '';
+            msg.className = 'nl-msg err';
+            msg.textContent = 'Erro de conexão. Tente novamente.';
+            btn.disabled = false;
+          }
+        });
+      }
+    </script>
+  </Fragment>
+</BaseLayout>

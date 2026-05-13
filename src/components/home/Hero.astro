@@ -1,0 +1,50 @@
+---
+---
+<section id="hero">
+  <img src="/assets/mark-light.png" alt="" class="hero-mark" aria-hidden="true">
+  <div class="hero-eyebrow">Arquitetura de Aquisição Digital</div>
+  <h1>Mais tráfego não resolve operação <em>quebrada.</em></h1>
+  <p class="hero-sub">A Ongrowing monta e opera a arquitetura completa de aquisição do seu e-commerce — do diagnóstico até o resultado mensurável. Tráfego pago, automações, IA e e-mail trabalhando juntos.</p>
+  <p class="hero-form-label">Receba análises que valem mais do que relatório de agência</p>
+  <div id="hero-form-wrap">
+    <form class="hero-form" id="hero-nl-form">
+      <input type="text" placeholder="Seu nome" autocomplete="name" aria-label="Nome" name="name" required>
+      <input type="email" placeholder="Seu melhor e-mail" autocomplete="email" aria-label="E-mail" name="email" required>
+      <button type="submit" class="btn btn-mint">
+        <span class="btn-label">Quero receber</span>
+        <svg class="icon"><use href="#i-arrow-right"/></svg>
+      </button>
+    </form>
+    <p class="nl-success" id="hero-nl-success" style="display:none;color:var(--accent);font-family:var(--font-display);font-size:14px;font-weight:600;margin-top:12px;">
+      ✓ Cadastro realizado! Fique de olho na caixa de entrada.
+    </p>
+    <p class="nl-error" id="hero-nl-error" style="display:none;color:var(--danger);font-family:var(--font-display);font-size:14px;margin-top:12px;">
+      Algo deu errado. Tente novamente ou mande um e-mail para <a href="mailto:policy@ongrowing.agency" style="color:var(--danger);">policy@ongrowing.agency</a>
+    </p>
+  </div>
+</section>
+
+<script>
+import { subscribeNewsletter } from '../../scripts/newsletter.js';
+const form = document.getElementById('hero-nl-form') as HTMLFormElement | null;
+if (form) {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const label = btn.querySelector('.btn-label') as HTMLElement;
+    const original = label.textContent;
+    label.textContent = 'Enviando…';
+    btn.disabled = true;
+    const ok = await subscribeNewsletter(fd.get('name') as string, fd.get('email') as string);
+    if (ok) {
+      form.style.display = 'none';
+      document.getElementById('hero-nl-success')!.style.display = 'block';
+    } else {
+      document.getElementById('hero-nl-error')!.style.display = 'block';
+      label.textContent = original;
+      btn.disabled = false;
+    }
+  });
+}
+</script>

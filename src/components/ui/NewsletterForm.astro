@@ -1,0 +1,60 @@
+---
+export interface Props {
+  formId: string;
+  successId: string;
+  errorId: string;
+  inline?: boolean;
+}
+const { formId, successId, errorId, inline = false } = Astro.props;
+---
+
+{inline ? (
+  <form class="nl-form-inline" id={formId}>
+    <input type="text" placeholder="Seu nome" aria-label="Nome" name="name" required>
+    <input type="email" placeholder="Seu e-mail" aria-label="E-mail" name="email" required>
+    <button class="btn btn-mint" type="submit">
+      <span class="btn-label">Quero receber</span>
+      <svg class="icon"><use href="#i-arrow-right"/></svg>
+    </button>
+  </form>
+) : (
+  <form class="nl-form" id={formId}>
+    <input class="nl-input" type="text" placeholder="Seu nome" autocomplete="name" aria-label="Nome" name="name" required>
+    <input class="nl-input" type="email" placeholder="Seu melhor e-mail" autocomplete="email" aria-label="E-mail" name="email" required>
+    <button class="btn btn-mint nl-btn" type="submit">
+      <span class="btn-label">Quero receber</span>
+      <svg class="icon"><use href="#i-arrow-right"/></svg>
+    </button>
+  </form>
+)}
+<p id={successId} style="display:none;color:var(--accent);font-family:var(--font-display);font-size:14px;font-weight:600;margin-top:12px;">
+  ✓ Cadastro realizado! Fique de olho na caixa de entrada.
+</p>
+<p id={errorId} style="display:none;color:var(--danger);font-family:var(--font-display);font-size:14px;margin-top:12px;">
+  Algo deu errado. Tente novamente em instantes.
+</p>
+
+<script define:vars={{ formId, successId, errorId }}>
+import('/scripts/newsletter.js').then(({ subscribeNewsletter }) => {
+  const form = document.getElementById(formId);
+  if (!form) return;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const btn = form.querySelector('button[type="submit"]');
+    const label = btn.querySelector('.btn-label');
+    const original = label.textContent;
+    label.textContent = 'Enviando…';
+    btn.disabled = true;
+    const ok = await subscribeNewsletter(fd.get('name'), fd.get('email'));
+    if (ok) {
+      form.style.display = 'none';
+      document.getElementById(successId).style.display = 'block';
+    } else {
+      document.getElementById(errorId).style.display = 'block';
+      label.textContent = original;
+      btn.disabled = false;
+    }
+  });
+});
+</script>

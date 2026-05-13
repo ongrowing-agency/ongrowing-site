@@ -1,0 +1,445 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Topbar from '../../components/Topbar.astro';
+import { getPost } from '../../lib/sanity';
+import { toHTML } from '@portabletext/to-html';
+
+const { slug } = Astro.params;
+
+let post: any = null;
+try {
+  post = await getPost(slug!);
+} catch {
+  // use fallback
+}
+
+const fallbackPost = {
+  title: 'O ROAS médio mente. O que olhar antes de mudar uma campanha.',
+  excerpt: 'A média esconde o que realmente está acontecendo dentro de uma conta de tráfego. Como ler os dados por janela, canal e funil — e por que isso muda completamente as decisões de otimização da semana.',
+  category: 'Diagnóstico & dados',
+  publishedAt: '2026-05-12',
+  readTime: 8,
+  bodyHtml: `
+    <p class="lead-graf">Toda segunda-feira a gente abre o gerenciador da semana e vê a mesma coisa: o ROAS médio fechou em <strong>3.2</strong>, igual ao mês passado. Tudo certo, certo?</p>
+    <p>Errado. E a maioria das contas mexe na campanha justamente quando não devia — porque está olhando um número que está mascarando o que de fato aconteceu nos últimos sete dias.</p>
+    <p>Esse texto é sobre o que olhar antes. E por que a média, isoladamente, é uma das piores métricas para decidir otimização.</p>
+    <h2 id="por-que-a-media-engana">Por que a média engana</h2>
+    <p>Imagine duas semanas iguais no ROAS médio. Na primeira, todas as campanhas entregaram retorno parecido — um cenário estável. Na segunda, uma campanha entregou ROAS 8, outras três entregaram ROAS 1.5, e a média deu o mesmo 3.2.</p>
+    <p>Para o gerenciador, é o mesmo número. Para a operação, são <strong>dois mundos diferentes</strong>. No primeiro caso, dá pra escalar pouco a pouco. No segundo, tem campanha drenando orçamento que poderia estar na que está performando.</p>
+    <blockquote><p>A média te diz que o time está ganhando. Não te diz que três jogadores estão fazendo o trabalho dos outros oito.</p><cite>— Princípio do diagnóstico Ongrowing</cite></blockquote>
+    <h2 id="leitura-por-janela">Leitura por janela: 7d, 14d, 30d</h2>
+    <p>O segundo movimento é olhar a mesma conta em três janelas diferentes:</p>
+    <ul>
+      <li><strong>7 dias</strong> — sinal de tendência. Mudou alguma coisa na operação? Sazonalidade? Concorrente novo?</li>
+      <li><strong>14 dias</strong> — confirma se a tendência de 7 está se sustentando ou se foi ruído.</li>
+      <li><strong>30 dias</strong> — performance estrutural. É aqui que se decide se a estratégia da campanha funciona.</li>
+    </ul>
+    <p>Quando os três batem, a leitura é direta. Quando divergem, tem informação. ROAS 4 em 30 dias e 2.1 em 7 dias significa que algo aconteceu na última semana — e <em>esse</em> é o sinal que importa, não a média.</p>
+    <h2 id="por-canal-por-funil">Leitura por canal e por funil</h2>
+    <p>Depois da janela, vem o corte. ROAS consolidado de Meta + Google esconde os dois piores erros de leitura:</p>
+    <ol>
+      <li>Atribuição empilhada — a venda fechou no Search depois de passar pelo retargeting do Meta. Quem recebe o crédito muda completamente o cálculo de ROAS de cada canal.</li>
+      <li>Funil misturado — campanha de topo, meio e fundo entram no mesmo bolo e a média mata a leitura individual de cada etapa.</li>
+    </ol>
+    <h2 id="quando-mexer-na-campanha">Quando, de fato, mexer na campanha</h2>
+    <p>Com a leitura por janela, canal e funil organizada, fica claro quando vale otimizar. Resumindo o critério interno:</p>
+    <ul>
+      <li>Variação de 30% para baixo nas três janelas → mexer.</li>
+      <li>Variação só em 7d, com 14 e 30 estáveis → esperar mais 3 dias.</li>
+      <li>Frequência acima de 4.5 com queda de CTR → trocar criativo, não orçamento.</li>
+      <li>Funil de topo com ROAS baixo mas funil de fundo crescendo → não tocar no topo.</li>
+    </ul>
+    <h2 id="proximo-passo">Próximo passo</h2>
+    <p>Se você quer testar essa leitura na sua operação, comece pequeno. Pega uma campanha ativa, monta a tabela com as cinco colunas acima, e olha o que aparece. Em 80% dos casos o dado vai dizer alguma coisa que a média não estava dizendo.</p>
+  `,
+  toc: [
+    { id: 'por-que-a-media-engana', label: 'Por que a média engana' },
+    { id: 'leitura-por-janela', label: 'Leitura por janela: 7d, 14d, 30d' },
+    { id: 'por-canal-por-funil', label: 'Leitura por canal e por funil' },
+    { id: 'quando-mexer-na-campanha', label: 'Quando, de fato, mexer na campanha' },
+    { id: 'proximo-passo', label: 'Próximo passo' },
+  ],
+  relatedPosts: [
+    { slug: 'metricas-que-importam', title: 'Métricas que importam vs. relatório de vaidade', category: 'Diagnóstico & dados', publishedAt: '2026-04-02', readTime: 6 },
+    { slug: 'topo-de-funil-nao-e-desperdicio', title: 'Quando topo de funil deixa de ser desperdício', category: 'Tráfego pago', publishedAt: '2026-05-06', readTime: 6 },
+    { slug: 'diagnostico-antes-de-proposta', title: 'Por que diagnóstico vem antes de proposta — sempre', category: 'Estratégia & funil', publishedAt: '2026-04-21', readTime: 5 },
+  ],
+};
+
+const data = post || fallbackPost;
+
+let bodyHtml = data.bodyHtml || '';
+if (post?.body && !bodyHtml) {
+  try {
+    bodyHtml = toHTML(post.body);
+  } catch {
+    bodyHtml = '';
+  }
+}
+
+function formatDate(dateStr: string) {
+  try {
+    return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch { return dateStr; }
+}
+---
+<BaseLayout
+  title={`${data.title} — Ongrowing Blog`}
+  description={data.excerpt || ''}
+>
+  <Fragment slot="head">
+    <style>
+      .post-breadcrumb { padding: var(--sp-4) var(--gutter); background: var(--bg-elevated); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: var(--sp-2); font-family: var(--font-display); font-size: 11px; color: var(--fg-subtle); font-weight: 600; letter-spacing: .3px; text-transform: uppercase; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+      .post-breadcrumb::-webkit-scrollbar { display: none; }
+      .post-breadcrumb a { color: var(--fg-subtle); text-decoration: none; transition: color var(--dur-fast) var(--ease-out); }
+      .post-breadcrumb a:hover { color: var(--fg); }
+      .post-breadcrumb .sep { opacity: .4; }
+      .post-breadcrumb .current { color: var(--fg); }
+
+      .post-cover { max-width: 1080px; margin: var(--sp-8) var(--gutter) 0; height: 220px; background: var(--og-deep-800); border-radius: var(--r-lg); overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
+      @media (min-width: 768px) { .post-cover { margin: var(--sp-10) var(--gutter) 0; height: 320px; border-radius: var(--r-xl); } }
+      @media (min-width: 1024px) { .post-cover { margin: var(--sp-12) var(--gutter) 0; height: 380px; } }
+      @media (min-width: 1240px) { .post-cover { margin: var(--sp-12) auto 0; height: 420px; } }
+      .post-cover::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 70% 40%, rgba(121,217,199,.12) 0%, transparent 60%), radial-gradient(circle at 25% 75%, rgba(121,217,199,.06) 0%, transparent 55%); }
+      .post-cover .glyph { width: 160px; height: 160px; opacity: .12; color: var(--accent); }
+      @media (min-width: 768px) { .post-cover .glyph { width: 220px; height: 220px; } }
+      @media (min-width: 1024px) { .post-cover .glyph { width: 280px; height: 280px; } }
+      .post-cover .glyph svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
+
+      .post-header { padding: var(--sp-10) var(--gutter) var(--sp-6); background: var(--bg); max-width: 880px; margin: 0 auto; }
+      @media (min-width: 768px) { .post-header { padding: var(--sp-12) var(--gutter) var(--sp-8); } }
+      .post-header .post-category { font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; color: var(--accent-strong); margin-bottom: var(--sp-6); display: inline-flex; align-items: center; gap: var(--sp-3); }
+      .post-header .post-category::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--accent-strong); opacity: .7; }
+      .post-header h1 { font-family: var(--font-display); font-size: clamp(28px, 6vw, 56px); font-weight: 700; color: var(--fg); line-height: 1.08; letter-spacing: -1.2px; margin-bottom: var(--sp-5); text-wrap: balance; }
+      @media (min-width: 1024px) { .post-header h1 { letter-spacing: -1.6px; line-height: 1.06; margin-bottom: var(--sp-6); } }
+      .post-lead { font-family: var(--font-text); font-size: clamp(17px, 2.2vw, 21px); color: var(--fg-muted); line-height: 1.55; font-weight: 300; margin-bottom: var(--sp-8); max-width: 720px; text-wrap: pretty; }
+      @media (min-width: 1024px) { .post-lead { margin-bottom: var(--sp-10); } }
+      .post-meta-row { display: flex; align-items: center; gap: var(--sp-5); padding: var(--sp-5) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-family: var(--font-display); font-size: 13px; flex-wrap: wrap; }
+      .author-mini { display: inline-flex; align-items: center; gap: var(--sp-3); text-decoration: none; color: inherit; }
+      .author-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--og-deep-800); display: flex; align-items: center; justify-content: center; color: var(--accent); font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: .5px; }
+      .author-mini .name { color: var(--fg); font-weight: 700; font-size: 13px; }
+      .author-mini .role { color: var(--fg-subtle); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 1px; }
+      .meta-divider { width: 1px; height: 20px; background: var(--border); }
+      .meta-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-muted); font-weight: 600; letter-spacing: .2px; }
+
+      .post-layout { display: grid; grid-template-columns: 1fr; gap: 0; padding: var(--sp-8) var(--gutter) var(--sp-12); position: relative; max-width: 760px; margin: 0 auto; }
+      @media (min-width: 1200px) { .post-layout { grid-template-columns: 1fr 760px 1fr; max-width: none; padding: var(--sp-10) var(--gutter) var(--sp-16); margin: 0; } .post-prose-col { grid-column: 2; min-width: 0; } .post-toc { grid-column: 3; padding-left: var(--sp-12); padding-top: var(--sp-2); } }
+      .post-toc { display: none; }
+      @media (min-width: 1200px) { .post-toc { display: block; } }
+      .toc-sticky { position: sticky; top: var(--sp-6); max-width: 240px; }
+      .toc-label { font-family: var(--font-display); font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; color: var(--fg-subtle); margin-bottom: var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-3); }
+      .toc-label::before { content: ''; display: inline-block; width: 16px; height: 1px; background: var(--accent); opacity: .8; }
+      .toc-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); border-left: 1px solid var(--border); padding-left: var(--sp-4); }
+      .toc-list a { font-family: var(--font-text); font-size: 13px; color: var(--fg-muted); text-decoration: none; transition: color var(--dur-fast) var(--ease-out); line-height: 1.5; display: block; }
+      .toc-list a:hover { color: var(--fg); }
+      .toc-list a.active { color: var(--accent-strong); font-weight: 600; }
+      .toc-list li.active { margin-left: -17px; padding-left: var(--sp-4); border-left: 1px solid var(--accent); }
+
+      .prose { font-family: var(--font-text); font-size: 17px; line-height: 1.78; color: var(--fg); max-width: 720px; }
+      @media (min-width: 768px) { .prose { font-size: 18px; line-height: 1.82; } }
+      .prose p { margin: 0 0 var(--sp-6); color: var(--fg); text-wrap: pretty; }
+      .prose p.lead-graf { font-size: 20px; color: var(--fg-muted); font-weight: 400; }
+      .prose h2 { font-family: var(--font-display); font-size: clamp(22px, 3vw, 28px); font-weight: 700; color: var(--fg); letter-spacing: -.4px; line-height: 1.2; margin: var(--sp-10) 0 var(--sp-4); scroll-margin-top: 80px; }
+      .prose h2:first-child { margin-top: 0; }
+      @media (min-width: 768px) { .prose h2 { letter-spacing: -.5px; margin: var(--sp-12) 0 var(--sp-5); } }
+      .prose h3 { font-family: var(--font-display); font-size: 21px; font-weight: 700; color: var(--fg); letter-spacing: -.2px; line-height: 1.3; margin: var(--sp-8) 0 var(--sp-4); }
+      .prose strong { color: var(--fg); font-weight: 700; }
+      .prose em { font-style: italic; color: var(--fg-muted); }
+      .prose a { color: var(--accent-strong); text-decoration: underline; text-decoration-color: rgba(121,217,199,.5); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+      .prose a:hover { text-decoration-color: var(--accent-strong); }
+      .prose ul, .prose ol { margin: 0 0 var(--sp-6) var(--sp-2); padding-left: var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-3); }
+      .prose ul li, .prose ol li { line-height: 1.7; }
+      .prose ul li::marker { color: var(--accent-strong); content: '— '; }
+      .prose ol li::marker { color: var(--accent-strong); font-weight: 700; }
+      .prose blockquote { margin: var(--sp-10) 0; padding: var(--sp-2) var(--sp-8); border-left: 3px solid var(--accent); background: var(--og-mint-100); border-radius: 0 var(--r-md) var(--r-md) 0; }
+      .prose blockquote p { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--fg); line-height: 1.4; letter-spacing: -.2px; margin: var(--sp-6) 0; text-wrap: balance; }
+      .prose blockquote cite { font-family: var(--font-display); font-size: 12px; font-style: normal; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: var(--fg-muted); display: block; margin-bottom: var(--sp-6); }
+      .callout { margin: var(--sp-10) 0; padding: var(--sp-6) var(--sp-8); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--r-lg); display: flex; gap: var(--sp-5); align-items: flex-start; }
+      .callout-icon { width: 40px; height: 40px; border-radius: var(--r-sm); background: var(--og-mint-200); color: var(--og-deep-700); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .callout-body p { margin-bottom: 0; font-size: 16px; line-height: 1.65; }
+      .prose code { font-family: var(--font-mono); font-size: .9em; background: var(--og-mist-100); padding: .1em .35em; border-radius: var(--r-xs); color: var(--og-deep-700); }
+      .prose pre { background: var(--og-deep-900); color: #E8F1F4; padding: var(--sp-6); border-radius: var(--r-md); overflow-x: auto; margin: var(--sp-8) 0; font-size: 14px; line-height: 1.7; }
+      .prose pre code { background: transparent; padding: 0; color: inherit; }
+      .prose figure { margin: var(--sp-10) 0; }
+      .prose figure img { width: 100%; border-radius: var(--r-md); border: 1px solid var(--border); }
+      .prose figcaption { margin-top: var(--sp-3); font-family: var(--font-display); font-size: 12px; color: var(--fg-subtle); text-align: center; letter-spacing: .2px; }
+
+      .share-bar { margin: var(--sp-12) 0; padding: var(--sp-6) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-5); flex-wrap: wrap; }
+      .share-label { font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; color: var(--fg-subtle); }
+      .share-buttons { display: flex; gap: var(--sp-2); }
+      .share-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--bg-elevated); color: var(--fg-muted); text-decoration: none; transition: all var(--dur-fast) var(--ease-out); cursor: pointer; }
+      .share-btn:hover { background: var(--og-deep-800); color: #fff; border-color: var(--og-deep-800); }
+
+      .author-bio { margin: var(--sp-10) 0; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-6); display: grid; grid-template-columns: 64px 1fr; gap: var(--sp-5); align-items: start; }
+      @media (min-width: 768px) { .author-bio { padding: var(--sp-10); border-radius: var(--r-xl); grid-template-columns: 96px 1fr; gap: var(--sp-8); margin: var(--sp-12) 0; } }
+      .author-bio .big-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--og-deep-800); display: flex; align-items: center; justify-content: center; color: var(--accent); font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: .5px; position: relative; overflow: hidden; }
+      @media (min-width: 768px) { .author-bio .big-avatar { width: 96px; height: 96px; font-size: 30px; } }
+      .author-bio .big-avatar::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 70% 30%, rgba(121,217,199,.15) 0%, transparent 70%); }
+      .bio-content .eyebrow { font-family: var(--font-display); font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; color: var(--accent-strong); margin-bottom: var(--sp-2); }
+      .bio-content h4 { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--fg); margin-bottom: var(--sp-2); letter-spacing: -.3px; }
+      .bio-content .role-line { font-family: var(--font-display); font-size: 13px; color: var(--fg-subtle); font-weight: 500; margin-bottom: var(--sp-4); }
+      .bio-content p { font-family: var(--font-text); font-size: 15px; color: var(--fg-muted); line-height: 1.7; margin-bottom: var(--sp-5); }
+      .bio-links { display: flex; gap: var(--sp-3); }
+      .bio-links a { font-family: var(--font-display); font-size: 12px; font-weight: 600; color: var(--accent-strong); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: var(--r-pill); background: var(--og-mint-200); transition: background var(--dur-fast) var(--ease-out); }
+      .bio-links a:hover { background: var(--accent); }
+
+      .related-section { background: var(--og-paper); border-top: 1px solid var(--border); padding: var(--sp-12) var(--gutter); }
+      @media (min-width: 768px) { .related-section { padding: var(--sp-16) var(--gutter); } }
+      .related-wrap { max-width: 1080px; margin: 0 auto; }
+      .related-header { margin-bottom: var(--sp-8); }
+      .related-header .section-label { font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; color: var(--accent-strong); margin-bottom: var(--sp-3); display: inline-flex; align-items: center; gap: var(--sp-3); }
+      .related-header .section-label::before { content: ''; display: inline-block; width: 22px; height: 1px; background: var(--accent-strong); opacity: .7; }
+      .related-header h3 { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--fg); letter-spacing: -.6px; }
+      .related-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-6); }
+      @media (min-width: 640px) { .related-grid { grid-template-columns: 1fr 1fr; } }
+      @media (min-width: 1024px) { .related-grid { grid-template-columns: repeat(3, 1fr); } }
+      .related-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: transform var(--dur-base) var(--ease-out); }
+      .related-card:hover { transform: translateY(-2px); }
+      .related-img { height: 160px; border-radius: var(--r-md); background: var(--og-deep-800); margin-bottom: var(--sp-4); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+      .related-img.v2 { background: var(--og-deep-700); }
+      .related-img.v3 { background: var(--og-deep-900); background-image: linear-gradient(135deg, var(--og-deep-900) 0%, var(--og-deep-700) 100%); }
+      .related-img .glyph { width: 80px; height: 80px; opacity: .15; color: var(--accent); }
+      .related-img .glyph svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.25; }
+      .related-card .post-category { font-size: 10px; margin-bottom: var(--sp-2); }
+      .related-card h4 { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--fg); line-height: 1.3; margin-bottom: var(--sp-3); letter-spacing: -.2px; transition: color var(--dur-fast) var(--ease-out); }
+      .related-card:hover h4 { color: var(--accent-strong); }
+      .related-card .post-meta { font-size: 11px; }
+      .post-category { font-family: var(--font-display); font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; color: var(--accent-strong); margin-bottom: var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-3); }
+      .post-category::before { content: ''; display: inline-block; width: 22px; height: 1px; background: var(--accent-strong); opacity: .7; }
+      .post-meta { display: flex; align-items: center; gap: var(--sp-4); font-family: var(--font-display); font-size: 12px; color: var(--fg-subtle); font-weight: 500; letter-spacing: .2px; }
+      .post-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--fg-subtle); opacity: .5; }
+      .post-meta .item { display: inline-flex; align-items: center; gap: 6px; }
+
+      .post-newsletter { background: var(--og-deep-800); padding: var(--sp-12) var(--gutter); position: relative; overflow: hidden; }
+      @media (min-width: 768px) { .post-newsletter { padding: var(--sp-16) var(--gutter); } }
+      @media (min-width: 1024px) { .post-newsletter { padding: var(--sp-20) var(--gutter); } }
+      .post-newsletter::before { content: ''; position: absolute; top: -100px; right: -100px; width: 640px; height: 640px; background: radial-gradient(circle, rgba(121,217,199,.07) 0%, transparent 65%); pointer-events: none; }
+      .post-nl-inner { max-width: 880px; margin: 0 auto; position: relative; }
+      .post-nl-eyebrow { font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; color: var(--accent); margin-bottom: var(--sp-5); display: inline-flex; align-items: center; gap: var(--sp-3); }
+      .post-nl-eyebrow::before { content: ''; display: inline-block; width: 26px; height: 1px; background: var(--accent); opacity: .8; }
+      .post-newsletter h3 { font-family: var(--font-display); font-size: clamp(28px, 3vw, 38px); font-weight: 700; color: #fff; letter-spacing: -.8px; line-height: 1.15; margin-bottom: var(--sp-5); text-wrap: balance; }
+      .post-newsletter h3 em { font-style: italic; color: var(--accent); }
+      .post-newsletter > .post-nl-inner > p { font-family: var(--font-text); font-size: 18px; color: rgba(255,255,255,.6); line-height: 1.6; max-width: 580px; margin-bottom: var(--sp-8); font-weight: 300; }
+      .post-nl-form { display: flex; gap: var(--sp-3); max-width: 520px; flex-wrap: wrap; }
+      .post-nl-form input { flex: 1; min-width: 180px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: var(--r-md); padding: 15px 20px; font-family: var(--font-text); font-size: 15px; color: #fff; outline: none; transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
+      .post-nl-form input::placeholder { color: rgba(255,255,255,.32); }
+      .post-nl-form input:focus { border-color: rgba(121,217,199,.5); background: rgba(255,255,255,.06); box-shadow: none; }
+      .post-nl-disc { margin-top: var(--sp-5); font-family: var(--font-text); font-size: 13px; color: rgba(255,255,255,.3); }
+      .nl-msg { font-family: var(--font-display); font-size: 12px; font-weight: 600; margin-top: var(--sp-3); letter-spacing: .3px; display: none; }
+      .nl-msg.ok { color: var(--accent); }
+      .nl-msg.err { color: #ff6b6b; }
+    </style>
+  </Fragment>
+
+  <Topbar />
+
+  <nav class="post-breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Ongrowing</a>
+    <span class="sep">/</span>
+    <a href="/blog/">Blog</a>
+    <span class="sep">/</span>
+    <span class="current">{data.category}</span>
+  </nav>
+
+  <figure class="post-cover">
+    <div class="glyph">
+      <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+    </div>
+  </figure>
+
+  <header class="post-header">
+    <span class="post-category">{data.category}</span>
+    <h1>{data.title}</h1>
+    <p class="post-lead">{data.excerpt}</p>
+
+    <div class="post-meta-row">
+      <a href="#autor" class="author-mini">
+        <div class="author-avatar">VS</div>
+        <div>
+          <div class="name">Vini Santos</div>
+          <div class="role">Founder & CEO</div>
+        </div>
+      </a>
+      <div class="meta-divider"></div>
+      <span class="meta-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+        {formatDate(data.publishedAt)}
+      </span>
+      {data.readTime && <>
+        <div class="meta-divider"></div>
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          {data.readTime} min de leitura
+        </span>
+      </>}
+    </div>
+  </header>
+
+  <div class="post-layout">
+    <article class="post-prose-col">
+      <div class="prose" set:html={bodyHtml}></div>
+
+      <div class="share-bar">
+        <span class="share-label">Compartilhar este post</span>
+        <div class="share-buttons">
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${Astro.url.href}`} class="share-btn" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <a href={`https://twitter.com/intent/tweet?url=${Astro.url.href}&text=${encodeURIComponent(data.title)}`} class="share-btn" target="_blank" rel="noopener" aria-label="X / Twitter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          </a>
+          <button class="share-btn" id="copy-link-btn" aria-label="Copiar link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="author-bio" id="autor">
+        <div class="big-avatar">VS</div>
+        <div class="bio-content">
+          <p class="eyebrow">Escrito por</p>
+          <h4>Vini Santos</h4>
+          <p class="role-line">Founder & CEO · Ongrowing Negócios Digitais</p>
+          <p>Operando aquisição digital para e-commerce há mais de uma década. Acredita que sistema bem montado vence campanha bem otimizada — e que o trabalho começa, sempre, pelo diagnóstico. Toca as contas do portfólio com poucos clientes por opção.</p>
+          <div class="bio-links">
+            <a href="https://www.linkedin.com/in/" target="_blank" rel="noopener">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+              LinkedIn
+            </a>
+            <a href="/">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              Conhecer a Ongrowing
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <aside class="post-toc" aria-label="Índice do post">
+      <div class="toc-sticky">
+        <div class="toc-label">Neste post</div>
+        <ul class="toc-list" id="toc">
+          {(data.toc || []).map((item: any) => (
+            <li><a href={`#${item.id}`}>{item.label}</a></li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  {(data.relatedPosts || []).length > 0 && (
+    <section class="related-section">
+      <div class="related-wrap">
+        <div class="related-header">
+          <div class="section-label">Continuar lendo</div>
+          <h3>Posts relacionados</h3>
+        </div>
+        <div class="related-grid">
+          {(data.relatedPosts || []).map((rel: any, i: number) => {
+            const variants = ['', ' v2', ' v3'];
+            return (
+              <a href={`/blog/${rel.slug?.current || rel.slug}/`} class="related-card">
+                <div class={`related-img${variants[i] || ''}`}>
+                  <div class="glyph">
+                    <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+                  </div>
+                </div>
+                <span class="post-category">{rel.category}</span>
+                <h4>{rel.title}</h4>
+                <div class="post-meta">
+                  <span class="item">{formatDate(rel.publishedAt)}</span>
+                  {rel.readTime && <><span class="dot"></span><span class="item">{rel.readTime} min</span></>}
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="post-newsletter">
+    <div class="post-nl-inner">
+      <div class="post-nl-eyebrow">Newsletter</div>
+      <h3>Receba a próxima análise direto no <em>e-mail.</em></h3>
+      <p>Sem frequência abusiva. Enviamos quando temos algo que vale o seu tempo — cases, decisões e aprendizados de operações reais de e-commerce.</p>
+      <form class="post-nl-form" id="nl-form-post">
+        <input type="text" id="nl-name-post" placeholder="Seu nome" autocomplete="name" aria-label="Nome">
+        <input type="email" id="nl-email-post" placeholder="Seu melhor e-mail" autocomplete="email" aria-label="E-mail" required>
+        <button class="btn btn-mint" type="submit">
+          Quero receber
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </form>
+      <p class="nl-msg" id="nl-msg-post"></p>
+      <p class="post-nl-disc">LGPD-compliant · Seus dados protegidos · Desinscrição a qualquer momento</p>
+    </div>
+  </section>
+
+  <Fragment slot="scripts">
+    <script>
+      document.getElementById('copy-link-btn')?.addEventListener('click', async function(this: HTMLButtonElement) {
+        try {
+          await navigator.clipboard.writeText(location.href);
+          const svg = this.innerHTML;
+          this.innerHTML = '<span style="font-size:11px;font-family:var(--font-display);font-weight:700;">OK</span>';
+          setTimeout(() => { this.innerHTML = svg; }, 1400);
+        } catch {}
+      });
+
+      const headings = document.querySelectorAll('.prose h2[id]');
+      const tocLinks = document.querySelectorAll('#toc a');
+      const tocMap = new Map<string, Element>();
+      tocLinks.forEach(a => tocMap.set(a.getAttribute('href')!.slice(1), a));
+
+      if (headings.length) {
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            const link = tocMap.get((e.target as HTMLElement).id);
+            if (!link) return;
+            if (e.isIntersecting) {
+              tocLinks.forEach(l => { l.classList.remove('active'); l.parentElement!.classList.remove('active'); });
+              link.classList.add('active');
+              link.parentElement!.classList.add('active');
+            }
+          });
+        }, { rootMargin: '-10% 0px -70% 0px' });
+        headings.forEach(h => obs.observe(h));
+      }
+
+      const nlForm = document.getElementById('nl-form-post') as HTMLFormElement;
+      const nlMsg = document.getElementById('nl-msg-post') as HTMLElement;
+      if (nlForm) {
+        nlForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = (document.getElementById('nl-name-post') as HTMLInputElement).value;
+          const email = (document.getElementById('nl-email-post') as HTMLInputElement).value;
+          const btn = nlForm.querySelector('button[type=submit]') as HTMLButtonElement;
+          btn.disabled = true;
+          try {
+            const res = await fetch('/api/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, email }),
+            });
+            nlMsg.style.display = 'block';
+            if (res.ok) {
+              nlMsg.className = 'nl-msg ok';
+              nlMsg.textContent = 'Inscrito com sucesso!';
+              nlForm.reset();
+            } else {
+              nlMsg.className = 'nl-msg err';
+              nlMsg.textContent = 'Algo deu errado. Tente novamente.';
+              btn.disabled = false;
+            }
+          } catch {
+            nlMsg.style.display = 'block';
+            nlMsg.className = 'nl-msg err';
+            nlMsg.textContent = 'Erro de conexão. Tente novamente.';
+            btn.disabled = false;
+          }
+        });
+      }
+    </script>
+  </Fragment>
+</BaseLayout>

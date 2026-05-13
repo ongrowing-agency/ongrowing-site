@@ -1,0 +1,469 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Topbar from '../../components/Topbar.astro';
+import { getCourse } from '../../lib/sanity';
+
+const { slug } = Astro.params;
+
+let course: any = null;
+try {
+  course = await getCourse(slug!);
+} catch {
+  // use fallback
+}
+
+const fallbackCourse = {
+  title: 'Tráfego Pago do Zero para E-commerce',
+  category: 'Tráfego pago',
+  level: 'Iniciante',
+  duration: '4h 30min',
+  modules: [
+    {
+      title: 'Módulo 1 — Fundamentos',
+      lessons: [
+        { title: 'Como o tráfego pago realmente funciona', duration: '18 min', videoId: 'dQw4w9WgXcQ' },
+        { title: 'Estrutura de conta: o que não te ensinaram', duration: '24 min', videoId: 'dQw4w9WgXcQ' },
+        { title: 'Métricas que importam vs. relatório de vaidade', duration: '21 min', videoId: 'dQw4w9WgXcQ' },
+      ]
+    },
+    {
+      title: 'Módulo 2 — Meta Ads',
+      lessons: [
+        { title: 'Campanha de topo de funil: awareness que converte', duration: '32 min', videoId: 'dQw4w9WgXcQ' },
+        { title: 'Retargeting e audiências personalizadas', duration: '28 min', videoId: 'dQw4w9WgXcQ' },
+        { title: 'Criativos que vendem: ângulo, formato e copy', duration: '35 min', videoId: 'dQw4w9WgXcQ' },
+      ]
+    },
+    {
+      title: 'Módulo 3 — Google Ads',
+      lessons: [
+        { title: 'Search: como capturar intenção de compra', duration: '26 min', videoId: 'dQw4w9WgXcQ' },
+        { title: 'Shopping Ads: catálogo, feed e lances', duration: '31 min', videoId: 'dQw4w9WgXcQ' },
+      ]
+    },
+    {
+      title: 'Módulo 4 — Otimização',
+      lessons: [
+        { title: 'Leitura de dados: quando agir e quando esperar', duration: '29 min', videoId: 'dQw4w9WgXcQ' },
+        { title: 'Testes A/B que valem a pena rodar', duration: '22 min', videoId: 'dQw4w9WgXcQ' },
+        { title: 'Escalar sem quebrar o ROAS', duration: '27 min', videoId: 'dQw4w9WgXcQ' },
+        { title: 'Montando o relatório que faz sentido', duration: '19 min', videoId: 'dQw4w9WgXcQ' },
+      ]
+    }
+  ]
+};
+
+const data = course || fallbackCourse;
+
+// Flatten lessons for total count and first lesson
+const allLessons: { title: string; duration: string; videoId: string; moduleTitle: string; lessonNum: number }[] = [];
+(data.modules || []).forEach((mod: any) => {
+  (mod.lessons || []).forEach((lesson: any) => {
+    allLessons.push({
+      title: lesson.title,
+      duration: lesson.duration || '',
+      videoId: lesson.videoId || '',
+      moduleTitle: mod.title,
+      lessonNum: allLessons.length + 1,
+    });
+  });
+});
+
+const totalLessons = allLessons.length;
+const firstLesson = allLessons[0];
+---
+<BaseLayout
+  title={`${data.title} — Ongrowing Cursos`}
+  description={data.description || `Curso ${data.title} na Ongrowing.`}
+  noFooter={true}
+>
+  <Fragment slot="head">
+    <style>
+      :root { --course-nav-w: 280px; }
+      @media (min-width: 1024px) { :root { --course-nav-w: 320px; } }
+
+      .course-nav {
+        position: fixed;
+        top: 0; left: 0;
+        width: 84vw;
+        max-width: 320px;
+        height: 100vh;
+        background: var(--bg-elevated);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        z-index: 88;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform var(--dur-base) var(--ease-out);
+        box-shadow: 0 12px 40px rgba(1,46,64,.18);
+      }
+      .course-nav.open { transform: translateX(0); }
+      @media (min-width: 768px) {
+        .course-nav { width: var(--course-nav-w); max-width: none; transform: translateX(0); transition: none; box-shadow: none; }
+      }
+      .course-nav-close {
+        position: absolute;
+        top: var(--sp-4); right: var(--sp-4);
+        width: 34px; height: 34px;
+        border-radius: var(--r-sm);
+        border: 1px solid var(--border);
+        background: var(--bg-elevated);
+        color: var(--fg-muted);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+      }
+      .course-nav-close:hover { color: var(--fg); background: var(--og-mist-100); }
+      @media (min-width: 768px) { .course-nav-close { display: none; } }
+      .course-nav-header {
+        padding: var(--sp-8) var(--sp-6) var(--sp-5);
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-elevated);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-display);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--fg-subtle);
+        text-decoration: none;
+        margin-bottom: var(--sp-4);
+        transition: color var(--dur-fast) var(--ease-out), gap var(--dur-fast) var(--ease-out);
+      }
+      .back-link:hover { color: var(--fg); gap: 10px; }
+      .course-nav-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--fg); line-height: 1.3; margin-bottom: var(--sp-1); letter-spacing: -.2px; }
+      .course-nav-meta { font-family: var(--font-display); font-size: 11px; color: var(--fg-subtle); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+      .course-progress { margin-top: var(--sp-4); height: 3px; background: var(--og-mist-100); border-radius: var(--r-pill); overflow: hidden; }
+      .course-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: var(--r-pill); transition: width var(--dur-slow) var(--ease-out); }
+      .progress-label { font-family: var(--font-display); font-size: 10px; color: var(--fg-subtle); margin-top: 6px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+
+      .lessons-list { padding: var(--sp-4) 0; flex: 1; }
+      .module-label { font-family: var(--font-display); font-size: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: var(--fg-subtle); padding: var(--sp-4) var(--sp-6) 8px; }
+      .lesson-item { display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-3) var(--sp-6); cursor: pointer; transition: background var(--dur-fast) var(--ease-out); border-left: 3px solid transparent; }
+      .lesson-item:hover { background: var(--og-mist-100); }
+      .lesson-item.active { background: rgba(121,217,199,.08); border-left-color: var(--accent); }
+      .lesson-item.done .lesson-num { background: var(--success); color: #fff; }
+      .lesson-num { width: 22px; height: 22px; border-radius: 50%; background: var(--og-mist-100); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 10px; font-weight: 700; color: var(--fg-subtle); flex-shrink: 0; margin-top: 1px; transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+      .lesson-item.active .lesson-num { background: var(--accent); color: var(--og-deep-800); }
+      .lesson-item.done .lesson-num svg { width: 12px; height: 12px; stroke: #fff; }
+      .lesson-info { flex: 1; min-width: 0; }
+      .lesson-title { font-family: var(--font-text); font-size: 13px; font-weight: 600; color: var(--fg-muted); line-height: 1.4; margin-bottom: 2px; }
+      .lesson-item.active .lesson-title { color: var(--fg); font-weight: 700; }
+      .lesson-duration { font-family: var(--font-display); font-size: 11px; color: var(--fg-subtle); font-weight: 500; }
+
+      .main { margin-left: 0 !important; min-height: 100vh; display: flex; flex-direction: column; }
+      @media (min-width: 768px) { .main { margin-left: var(--course-nav-w) !important; } }
+
+      .lesson-breadcrumb {
+        padding: var(--sp-4) var(--sp-6);
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        font-family: var(--font-display);
+        font-size: 11px;
+        color: var(--fg-subtle);
+        font-weight: 500;
+        letter-spacing: .2px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+      }
+      .lesson-breadcrumb::-webkit-scrollbar { display: none; }
+      @media (min-width: 768px) { .lesson-breadcrumb { padding: var(--sp-5) var(--sp-8); font-size: 12px; } }
+      @media (min-width: 1024px) { .lesson-breadcrumb { padding: var(--sp-5) var(--sp-12); } }
+      .lesson-breadcrumb a { color: var(--fg-subtle); text-decoration: none; transition: color var(--dur-fast) var(--ease-out); }
+      .lesson-breadcrumb a:hover { color: var(--fg); }
+      .lesson-breadcrumb .sep { opacity: .4; }
+      .lesson-breadcrumb .current { color: var(--fg); font-weight: 600; }
+
+      .video-area { padding: var(--sp-8) var(--sp-6) var(--sp-6); max-width: 920px; }
+      @media (min-width: 768px) { .video-area { padding: var(--sp-10) var(--sp-8) var(--sp-8); } }
+      @media (min-width: 1024px) { .video-area { padding: var(--sp-12) var(--sp-12) var(--sp-8); } }
+      .lesson-tag { font-family: var(--font-display); font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; color: var(--accent-strong); margin-bottom: var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-3); }
+      .lesson-tag::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--accent-strong); opacity: .7; }
+      .lesson-heading { font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 34px); font-weight: 700; color: var(--fg); letter-spacing: -.8px; line-height: 1.15; margin-bottom: var(--sp-2); text-wrap: balance; }
+      .lesson-module-label { font-family: var(--font-display); font-size: 13px; color: var(--fg-subtle); margin-bottom: var(--sp-8); font-weight: 500; display: inline-flex; align-items: center; gap: var(--sp-3); }
+
+      .video-player-wrap { background: var(--og-deep-800); border-radius: var(--r-xl); overflow: hidden; position: relative; aspect-ratio: 16/9; box-shadow: var(--shadow-lg); }
+      .video-player-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+
+      .lesson-nav { padding: 0 var(--sp-6) var(--sp-8); max-width: 920px; display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; }
+      @media (min-width: 768px) { .lesson-nav { padding: 0 var(--sp-8) var(--sp-10); } }
+      @media (min-width: 1024px) { .lesson-nav { padding: 0 var(--sp-12) var(--sp-10); } }
+      .lesson-nav-btn { display: inline-flex; align-items: center; gap: var(--sp-2); padding: 12px 20px; border-radius: var(--r-md); font-family: var(--font-display); font-size: 13px; font-weight: 700; text-decoration: none; transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out); cursor: pointer; border: none; }
+      .btn-prev { background: var(--og-mist-100); color: var(--fg-muted); }
+      .btn-prev:hover { background: var(--og-mist-200); color: var(--fg); }
+      .btn-next { background: var(--og-deep-800); color: #fff; }
+      .btn-next:hover { background: var(--og-deep-700); }
+      .btn-next:hover .icon { transform: translateX(2px); }
+      .btn-next .icon { transition: transform var(--dur-base) var(--ease-out); }
+      .lesson-counter { font-family: var(--font-display); font-size: 11px; color: var(--fg-subtle); font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+
+      .lesson-description { max-width: 920px; margin: 0 var(--sp-6); padding: var(--sp-8) 0 var(--sp-10); border-top: 1px solid var(--border); }
+      @media (min-width: 768px) { .lesson-description { margin: 0 var(--sp-8); padding: var(--sp-10) 0 var(--sp-12); } }
+      @media (min-width: 1024px) { .lesson-description { margin: 0 var(--sp-12); } }
+      .lesson-description h3 { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--fg); margin-bottom: var(--sp-4); letter-spacing: -.2px; }
+      .lesson-description p { font-family: var(--font-text); font-size: 16px; color: var(--fg-muted); line-height: 1.85; margin-bottom: var(--sp-4); }
+      .lesson-description p:last-of-type { margin-bottom: 0; }
+      .lesson-topics { margin-top: var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-3); }
+      .topic-item { display: flex; align-items: flex-start; gap: var(--sp-3); font-family: var(--font-text); font-size: 15px; color: var(--fg-muted); line-height: 1.55; }
+      .topic-item .icon { color: var(--accent-strong); font-size: 17px; margin-top: 1px; flex-shrink: 0; }
+
+      .course-footer-bar { background: var(--og-deep-900); padding: var(--sp-6); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--sp-4); margin-top: auto; border-top: 1px solid rgba(121,217,199,.06); }
+      @media (min-width: 768px) { .course-footer-bar { padding: var(--sp-8); } }
+      @media (min-width: 1024px) { .course-footer-bar { padding: var(--sp-8) var(--sp-12); } }
+      .course-footer-bar .footer-brand img { height: 22px; }
+      .course-footer-bar .footer-legal { display: flex; gap: var(--sp-6); }
+      .course-footer-bar .footer-legal a { font-family: var(--font-display); font-size: 12px; color: rgba(255,255,255,.3); text-decoration: none; font-weight: 500; transition: color var(--dur-fast) var(--ease-out); }
+      .course-footer-bar .footer-legal a:hover { color: rgba(255,255,255,.7); }
+      .course-footer-bar .footer-copy { font-family: var(--font-display); font-size: 11px; color: rgba(255,255,255,.2); font-weight: 500; letter-spacing: .5px; }
+
+      .btn-aulas { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--bg-elevated); color: var(--fg); font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; cursor: pointer; transition: background var(--dur-fast) var(--ease-out); }
+      .btn-aulas:hover { background: var(--og-mist-100); }
+      @media (min-width: 768px) { .btn-aulas { display: none; } }
+
+      .topbar-actions { display: flex; align-items: center; gap: var(--sp-2); }
+    </style>
+  </Fragment>
+
+  <!-- Course sidebar -->
+  <aside class="course-nav" id="course-nav" aria-label="Índice do curso">
+    <button class="course-nav-close" data-course-close aria-label="Fechar índice">
+      <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+    <div class="course-nav-header">
+      <a href="/cursos/" class="back-link">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        Todos os cursos
+      </a>
+      <div class="course-nav-title">{data.title}</div>
+      <div class="course-nav-meta">{totalLessons} aulas · {data.duration}</div>
+      <div class="course-progress">
+        <div class="course-progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="progress-label" id="progress-label">0 de {totalLessons} aulas concluídas</div>
+    </div>
+
+    <div class="lessons-list" role="list">
+      {(data.modules || []).map((mod: any, mi: number) => (
+        <>
+          <p class="module-label">{mod.title}</p>
+          {(mod.lessons || []).map((lesson: any, li: number) => {
+            const globalIdx = allLessons.findIndex(l => l.title === lesson.title && l.moduleTitle === mod.title);
+            const lessonNum = globalIdx + 1;
+            const isFirst = globalIdx === 0;
+            return (
+              <div
+                class={`lesson-item${isFirst ? ' active' : ''}`}
+                role="listitem"
+                data-lesson-idx={globalIdx}
+                data-video-id={lesson.videoId || ''}
+                data-title={lesson.title}
+                data-module={mod.title}
+                data-counter={`Aula ${lessonNum} de ${totalLessons}`}
+              >
+                <div class="lesson-num">{lessonNum}</div>
+                <div class="lesson-info">
+                  <div class="lesson-title">{lesson.title}</div>
+                  {lesson.duration && <div class="lesson-duration">{lesson.duration}</div>}
+                </div>
+              </div>
+            );
+          })}
+        </>
+      ))}
+    </div>
+  </aside>
+
+  <!-- Topbar with Aulas button -->
+  <header class="topbar" role="banner">
+    <a href="/" class="topbar-brand" aria-label="Ongrowing">
+      <img src="/assets/logo-horizontal-dark-cropped.png" alt="Ongrowing" height="28">
+    </a>
+    <div class="topbar-actions">
+      <button class="btn-aulas" data-course-open aria-label="Abrir índice de aulas">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+        Aulas
+      </button>
+      <button class="topbar-hamburger" data-nav-open aria-label="Abrir menu">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Lesson breadcrumb -->
+  <div class="lesson-breadcrumb">
+    <a href="/">Ongrowing</a>
+    <span class="sep">/</span>
+    <a href="/cursos/">Cursos</a>
+    <span class="sep">/</span>
+    <a href={`/cursos/${slug}/`}>{data.title}</a>
+    <span class="sep">/</span>
+    <span class="current" id="lesson-breadcrumb-title">{firstLesson ? `Aula 1 de ${totalLessons}` : ''}</span>
+  </div>
+
+  <!-- Video area -->
+  <div class="video-area">
+    <div class="lesson-tag" id="lesson-module-display">{firstLesson?.moduleTitle || ''}</div>
+    <h1 class="lesson-heading" id="lesson-title-display">{firstLesson?.title || data.title}</h1>
+    <p class="lesson-module-label">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span id="lesson-duration-display">{firstLesson?.duration || ''}</span>
+      · {data.title}
+    </p>
+
+    <div class="video-player-wrap">
+      <iframe
+        id="video-frame"
+        src={firstLesson?.videoId ? `https://www.youtube.com/embed/${firstLesson.videoId}` : 'about:blank'}
+        title="Aula do curso"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- Lesson navigation -->
+  <div class="lesson-nav">
+    <button class="lesson-nav-btn btn-prev" id="btn-prev" disabled>
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+      Aula anterior
+    </button>
+    <span class="lesson-counter" id="lesson-counter-display">{firstLesson ? `Aula 1 de ${totalLessons}` : ''}</span>
+    <button class="lesson-nav-btn btn-next" id="btn-next">
+      Próxima aula
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- Lesson description -->
+  <div class="lesson-description" id="lesson-description">
+    <h3>Sobre esta aula</h3>
+    <p id="lesson-desc-text">
+      {firstLesson ? `Nesta aula: ${firstLesson.title}.` : ''}
+    </p>
+    <div class="lesson-topics" id="lesson-topics">
+      <div class="topic-item">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        Conteúdo aplicado direto da operação real
+      </div>
+      <div class="topic-item">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        Exemplos com dados e resultados reais
+      </div>
+      <div class="topic-item">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        Implementação prática sem complexidade desnecessária
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimal course footer -->
+  <div class="course-footer-bar">
+    <div class="footer-brand">
+      <img src="/assets/logo-horizontal-dark-cropped.png" alt="Ongrowing">
+    </div>
+    <nav class="footer-legal">
+      <a href="/privacidade/">Política de Privacidade</a>
+      <a href="/termos/">Termos de Uso</a>
+      <a href="/cookies/">Política de Cookies</a>
+      <a href="/direitos/">Conteúdo & Direitos</a>
+    </nav>
+    <span class="footer-copy">© <span class="year"></span> ONGROWING NEGÓCIOS DIGITAIS LTDA · CNPJ 38.229.237/0001-11</span>
+  </div>
+
+  <Fragment slot="scripts">
+    <script define:vars={{ totalLessons }}>
+      // Serialize all lessons from the DOM
+      const lessonItems = Array.from(document.querySelectorAll('.lesson-item'));
+      let currentIdx = 0;
+
+      function selectLesson(idx) {
+        const el = lessonItems[idx];
+        if (!el) return;
+        lessonItems.forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+
+        const videoId = el.dataset.videoId || '';
+        const title = el.dataset.title || '';
+        const module = el.dataset.module || '';
+        const counter = el.dataset.counter || '';
+
+        document.getElementById('lesson-title-display').textContent = title;
+        document.getElementById('lesson-module-display').textContent = module;
+        document.getElementById('lesson-breadcrumb-title').textContent = counter;
+        document.getElementById('lesson-counter-display').textContent = counter;
+
+        const frame = document.getElementById('video-frame');
+        if (frame && videoId) {
+          frame.src = `https://www.youtube.com/embed/${videoId}`;
+        }
+
+        document.getElementById('btn-prev').disabled = idx === 0;
+        document.getElementById('btn-next').disabled = idx === totalLessons - 1;
+
+        currentIdx = idx;
+
+        // Close course drawer on mobile
+        const courseNav = document.getElementById('course-nav');
+        if (courseNav && courseNav.classList.contains('open')) {
+          courseNav.classList.remove('open');
+          document.querySelector('.nav-overlay')?.classList.remove('show');
+          document.body.classList.remove('no-scroll');
+        }
+
+        // Scroll main into view
+        document.querySelector('.video-area')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      lessonItems.forEach((item, idx) => {
+        item.addEventListener('click', () => selectLesson(idx));
+      });
+
+      document.getElementById('btn-prev')?.addEventListener('click', () => {
+        if (currentIdx > 0) selectLesson(currentIdx - 1);
+      });
+      document.getElementById('btn-next')?.addEventListener('click', () => {
+        if (currentIdx < totalLessons - 1) selectLesson(currentIdx + 1);
+      });
+
+      // Init first lesson state
+      selectLesson(0);
+
+      // Course nav drawer toggle
+      const courseNav = document.getElementById('course-nav');
+      const overlay = document.querySelector('.nav-overlay');
+      document.querySelectorAll('[data-course-open]').forEach(b => {
+        b.addEventListener('click', () => {
+          courseNav?.classList.add('open');
+          overlay?.classList.add('show');
+          document.body.classList.add('no-scroll');
+        });
+      });
+      // course-nav-close button
+      document.querySelector('.course-nav-close')?.addEventListener('click', () => {
+        courseNav?.classList.remove('open');
+        overlay?.classList.remove('show');
+        document.body.classList.remove('no-scroll');
+      });
+      // overlay also closes course nav
+      overlay?.addEventListener('click', () => {
+        courseNav?.classList.remove('open');
+      });
+
+      // Year stamps
+      document.querySelectorAll('.year').forEach(el => el.textContent = String(new Date().getFullYear()));
+    </script>
+  </Fragment>
+</BaseLayout>
