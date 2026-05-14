@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.5.0",
+    "@fontsource/poppins": "^5.2.7",
+    "@fontsource/raleway": "^5.2.8",
     "@portabletext/to-html": "^2.0.1",
     "@sanity/client": "^6.29.0",
     "@sanity/image-url": "^1.1.0",
