@@ -42,6 +42,10 @@ function formatDate(dateStr: string) {
 function getSlug(post: any) {
   return post.slug?.current || post.slug || '#';
 }
+
+function getCategory(post: any) {
+  return post.category || post.categories?.[0] || '';
+}
 ---
 <BaseLayout
   title="Blog — Ongrowing"
@@ -196,7 +200,7 @@ function getSlug(post: any) {
         </div>
       </div>
       <div class="hero-post-content">
-        <span class="post-category">{featuredPost.category}</span>
+        <span class="post-category">{getCategory(featuredPost)}</span>
         <h2>{featuredPost.title}</h2>
         <p>{featuredPost.excerpt}</p>
         <div class="post-meta">
@@ -225,15 +229,16 @@ function getSlug(post: any) {
       <div class="post-grid" id="post-grid">
         {gridPosts.map((post: any, i: number) => {
           const v = post.variant || ((i % 8) + 1);
+          const cat = getCategory(post);
           return (
-            <a href={`/blog/${getSlug(post)}/`} class="post-card" data-category={post.category}>
+            <a href={`/blog/${getSlug(post)}/`} class="post-card" data-category={cat}>
               <div class={`post-card-img img-v${v}`}>
-                <span class="post-card-tag">{post.category}</span>
+                <span class="post-card-tag">{cat}</span>
                 <div class="glyph">
                   <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
                 </div>
               </div>
-              <span class="post-category">{post.category}</span>
+              <span class="post-category">{cat}</span>
               <h3>{post.title}</h3>
               <p>{post.excerpt}</p>
               <div class="post-meta">
