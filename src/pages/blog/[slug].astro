@@ -69,13 +69,48 @@ const fallbackPost = {
 const data = post || fallbackPost;
 
 let bodyHtml = data.bodyHtml || '';
-if (post?.body && !bodyHtml) {
+let derivedToc: { id: string; label: string }[] = [];
+
+if (post?.body && !data.bodyHtml) {
+  const DIACRITICS = /[̀-ͯ]/g;
+  const slugify = (s: string) =>
+    s.normalize('NFD').replace(DIACRITICS, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+  const used = new Map<string, number>();
+  const idByBlock = new WeakMap<object, string>();
+  for (const block of (post.body as any[])) {
+    if (block?._type === 'block' && block.style === 'h2') {
+      const text = (block.children || []).map((c: any) => c.text || '').join('').trim();
+      if (!text) continue;
+      const base = slugify(text) || 'section';
+      const n = (used.get(base) || 0) + 1;
+      used.set(base, n);
+      const id = n === 1 ? base : `${base}-${n}`;
+      idByBlock.set(block, id);
+      derivedToc.push({ id, label: text });
+    }
+  }
+
   try {
-    bodyHtml = toHTML(post.body);
+    bodyHtml = toHTML(post.body, {
+      components: {
+        block: {
+          h2: ({ value, children }: any) => {
+            const id = idByBlock.get(value);
+            return id ? `<h2 id="${id}">${children}</h2>` : `<h2>${children}</h2>`;
+          },
+        },
+      },
+    });
   } catch {
     bodyHtml = '';
   }
 }
+
+const toc = data.toc || derivedToc;
 
 function formatDate(dateStr: string) {
   try {
@@ -315,16 +350,18 @@ function formatDate(dateStr: string) {
       </div>
     </article>
 
-    <aside class="post-toc" aria-label="Índice do post">
-      <div class="toc-sticky">
-        <div class="toc-label">Neste post</div>
-        <ul class="toc-list" id="toc">
-          {(data.toc || []).map((item: any) => (
-            <li><a href={`#${item.id}`}>{item.label}</a></li>
-          ))}
-        </ul>
-      </div>
-    </aside>
+    {toc.length > 0 && (
+      <aside class="post-toc" aria-label="Índice do post">
+        <div class="toc-sticky">
+          <div class="toc-label">Neste post</div>
+          <ul class="toc-list" id="toc">
+            {toc.map((item: any) => (
+              <li><a href={`#${item.id}`}>{item.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    )}
   </div>
 
   {(data.relatedPosts || []).length > 0 && (
