@@ -34,6 +34,28 @@ export default {
       },
     },
     { name: 'author', title: 'Author', type: 'string', initialValue: 'Vini Santos' },
+    {
+      name: 'seo',
+      title: 'SEO',
+      type: 'object',
+      fields: [
+        {
+          name: 'metaDescription',
+          title: 'Meta description',
+          type: 'text',
+          rows: 3,
+          description: 'Entre 140–160 caracteres. Se vazio, usa o Excerpt.',
+        },
+        {
+          name: 'keywords',
+          title: 'Keywords',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: { layout: 'tags' },
+          description: 'Keyword principal + secundárias. Pressione Enter após cada uma.',
+        },
+      ],
+    },
   ],
   orderings: [{ title: 'Published Date, New', name: 'publishedAtDesc', by: [{ field: 'publishedAt', direction: 'desc' }] }],
   preview: { select: { title: 'title', subtitle: 'publishedAt' } },
