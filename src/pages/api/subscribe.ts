@@ -1,15 +1,12 @@
 import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request }) => {
-  const listmonkUrl = import.meta.env.LISTMONK_URL;
-  const listmonkUser = import.meta.env.LISTMONK_USER;
-  const listmonkPassword = import.meta.env.LISTMONK_PASSWORD;
-  const listmonkListId = Number(import.meta.env.LISTMONK_LIST_ID ?? 4);
-
-  // DEBUG — remover depois
-  console.log('ENV CHECK:', { listmonkUrl, listmonkUser, hasPassword: !!listmonkPassword, listmonkListId });
-
+  const listmonkUrl = import.meta.env.PUBLIC_LISTMONK_URL;
+  const listmonkUser = import.meta.env.PUBLIC_LISTMONK_USER;
+  const listmonkPassword = import.meta.env.PUBLIC_LISTMONK_PASSWORD;
+  const listmonkListId = Number(import.meta.env.PUBLIC_LISTMONK_LIST_ID ?? 4);
   if (!listmonkUrl || !listmonkUser || !listmonkPassword) {
-    return new Response(JSON.stringify({ error: 'Newsletter not configured' }), {
+    return new Response(JSON.stringify({ error: 'Newsletter not configured' }),
+  {
       status: 503,
       headers: { 'Content-Type': 'application/json' },
     });
