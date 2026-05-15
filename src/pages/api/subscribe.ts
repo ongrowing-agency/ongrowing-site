@@ -3,7 +3,7 @@ export const POST: APIRoute = async ({ request }) => {
   const listmonkUrl = import.meta.env.LISTMONK_URL;
   const listmonkUser = import.meta.env.LISTMONK_USER;
   const listmonkPassword = import.meta.env.LISTMONK_PASSWORD;
-  const listmonkListId = Number(import.meta.env.LISTMONK_LIST_ID ?? 1);
+  const listmonkListId = Number(import.meta.env.LISTMONK_LIST_ID ?? 4);
 
   // DEBUG — remover depois
   console.log('ENV CHECK:', { listmonkUrl, listmonkUser, hasPassword: !!listmonkPassword, listmonkListId });
