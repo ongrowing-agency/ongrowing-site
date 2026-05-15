@@ -7,7 +7,7 @@ import QuemSomos from '../components/home/QuemSomos.astro';
 import ParaQuem from '../components/home/ParaQuem.astro';
 import OQueEntregamos from '../components/home/OQueEntregamos.astro';
 import Cases from '../components/home/Cases.astro';
-import Newsletter from '../components/home/Newsletter.astro';
+import Diagnostico from '../components/home/Diagnostico.astro';
 ---
 <BaseLayout
   title="Ongrowing — Arquitetura de Aquisição Digital"
@@ -20,7 +20,7 @@ import Newsletter from '../components/home/Newsletter.astro';
   <ParaQuem />
   <OQueEntregamos />
   <Cases />
-  <Newsletter />
+  <Diagnostico />
 
   <Fragment slot="head">
     <style is:global>
@@ -107,36 +107,39 @@ import Newsletter from '../components/home/Newsletter.astro';
   margin-bottom: var(--sp-10);
 }
 @media (min-width: 768px) { .hero-sub { margin-bottom: var(--sp-12); } }
-.hero-form-label {
+.hero-cta-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.hero-cta-label {
   font-family: var(--font-display);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 2.5px;
   font-weight: 700;
   color: rgba(255,255,255,.35);
-  margin-bottom: var(--sp-4);
 }
-.hero-form {
-  display: flex;
+.hero-cta-btn {
+  display: inline-flex;
+  align-items: center;
   gap: var(--sp-3);
-  max-width: 540px;
-  flex-wrap: wrap;
-}
-.hero-form input {
-  flex: 1;
-  min-width: 180px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.1);
+  padding: 16px 28px;
+  background: var(--accent);
+  color: var(--og-deep-800);
+  border: none;
   border-radius: var(--r-md);
-  padding: 15px 20px;
-  font-family: var(--font-text);
-  font-size: 15px;
-  color: #fff;
-  outline: none;
-  transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: -.1px;
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  width: fit-content;
 }
-.hero-form input::placeholder { color: rgba(255,255,255,.32); }
-.hero-form input:focus { border-color: rgba(121,217,199,.5); background: rgba(255,255,255,.06); box-shadow: none; }
+.hero-cta-btn:hover { opacity: .88; transform: translateY(-1px); }
+.hero-cta-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* ── CARROSSEL ── */
 #clientes {
@@ -367,28 +370,13 @@ section:last-of-type { border-bottom: none; }
 .case-card.dark .case-duration, .case-card.mid .case-duration { color: rgba(121,217,199,.55); }
 .case-duration::before { content: ''; width: 18px; height: 1px; background: currentColor; opacity: .7; }
 
-/* ── NEWSLETTER ── */
-#newsletter { background: var(--og-deep-800); overflow: hidden; border-bottom: none; position: relative; }
-#newsletter::before { content: ''; position: absolute; top: -120px; right: -120px; width: 720px; height: 720px; background: radial-gradient(circle, rgba(121,217,199,.06) 0%, transparent 62%); pointer-events: none; }
-#newsletter .section-num { color: rgba(121,217,199,.6); }
-#newsletter .section-num::before { background: rgba(121,217,199,.4); }
-#newsletter .section-title-group h2 { color: #fff; }
-#newsletter .section-title-group h2 em { color: var(--accent); }
-#newsletter .section-title-group .lead { color: rgba(255,255,255,.55); }
-.nl-body { display: grid; grid-template-columns: 1fr; gap: var(--sp-10); align-items: center; }
-@media (min-width: 1024px) { .nl-body { grid-template-columns: 1fr 1fr; gap: var(--sp-20); } }
+/* ── PROMISE ITEMS (shared — usado no Diagnostico) ── */
 .promise-item { display: flex; align-items: flex-start; gap: var(--sp-5); padding: var(--sp-6) 0; border-bottom: 1px solid rgba(121,217,199,.1); }
 .promise-item:last-child { border-bottom: none; }
 .promise-icon { width: 44px; height: 44px; border-radius: var(--r-sm); background: rgba(121,217,199,.1); border: 1px solid rgba(121,217,199,.18); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .promise-icon .icon { font-size: 20px; }
 .promise-text h4 { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 5px; letter-spacing: -.1px; }
 .promise-text p { font-size: 14px; color: rgba(255,255,255,.5); line-height: 1.65; font-family: var(--font-text); }
-.nl-form { display: flex; flex-direction: column; gap: var(--sp-3); }
-.nl-input { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: var(--r-md); padding: 16px 22px; font-family: var(--font-text); font-size: 15px; color: #fff; outline: none; transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
-.nl-input::placeholder { color: rgba(255,255,255,.32); }
-.nl-input:focus { border-color: rgba(121,217,199,.45); background: rgba(255,255,255,.06); box-shadow: none; }
-.nl-btn { margin-top: var(--sp-2); width: 100%; padding: 16px 24px; }
-.nl-disc { font-family: var(--font-text); font-size: 12px; color: rgba(255,255,255,.22); margin-top: var(--sp-4); line-height: 1.7; }
     </style>
   </Fragment>
 
