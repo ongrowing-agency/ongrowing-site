@@ -10,7 +10,7 @@ let posts: any[] = [];
 let total = 0;
 try {
   posts = await getPosts(page, pageSize);
-  total = posts.length; // simplified; real total would need a count query
+  total = posts.length;
 } catch {
   // use static fallback
 }
@@ -38,14 +38,8 @@ function formatDate(dateStr: string) {
     return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
   } catch { return dateStr; }
 }
-
-function getSlug(post: any) {
-  return post.slug?.current || post.slug || '#';
-}
-
-function getCategory(post: any) {
-  return post.category || post.categories?.[0] || '';
-}
+function getSlug(post: any) { return post.slug?.current || post.slug || '#'; }
+function getCategory(post: any) { return post.category || post.categories?.[0] || ''; }
 ---
 <BaseLayout
   title="Blog — Ongrowing"
@@ -118,7 +112,6 @@ function getCategory(post: any) {
       .post-card-img::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 70% 50%, rgba(121,217,199,.1) 0%, transparent 60%); }
       .post-card-img .glyph { width: 100px; height: 100px; opacity: .14; color: var(--accent); }
       .post-card-img .glyph svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linejoin: round; stroke-linecap: round; }
-
       .img-v1 { background: var(--og-deep-800); }
       .img-v2 { background: var(--og-deep-700); }
       .img-v3 { background: var(--og-deep-900); }
@@ -135,7 +128,6 @@ function getCategory(post: any) {
       .img-v6 .glyph { transform: translateY(-5%) scale(1.3); }
       .img-v7 .glyph { transform: translateX(28%) scale(1.4); }
       .img-v8 .glyph { transform: translateX(-15%) translateY(5%) scale(1.4); }
-
       .post-card-tag { position: absolute; top: var(--sp-4); left: var(--sp-4); font-family: var(--font-display); font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); background: rgba(121,217,199,.1); border: 1px solid rgba(121,217,199,.22); padding: 4px 10px; border-radius: var(--r-pill); backdrop-filter: blur(8px); }
       .post-card h3 { font-family: var(--font-display); font-size: 19px; font-weight: 700; color: var(--fg); line-height: 1.25; letter-spacing: -.3px; margin-bottom: var(--sp-2); text-wrap: balance; transition: color var(--dur-fast) var(--ease-out); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5em; }
       .post-card:hover h3 { color: var(--accent-strong); }
@@ -163,11 +155,31 @@ function getCategory(post: any) {
       .recent-post .meta { font-family: var(--font-display); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: var(--accent-strong); }
       .recent-post .title { font-family: var(--font-display); font-size: 13.5px; font-weight: 600; color: var(--fg); line-height: 1.4; letter-spacing: -.1px; transition: color var(--dur-fast) var(--ease-out); }
       .recent-post:hover .title { color: var(--accent-strong); }
+
+      /* ── NEWSLETTER SIDEBAR ── */
       .sidebar-cta { background: var(--og-deep-800); color: #fff; border: none; }
       .sidebar-cta h4 { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #fff; margin-bottom: var(--sp-2); line-height: 1.25; letter-spacing: -.2px; }
       .sidebar-cta h4 em { font-style: italic; color: var(--accent); }
-      .sidebar-cta p { font-family: var(--font-text); font-size: 13px; color: rgba(255,255,255,.55); line-height: 1.55; margin-bottom: var(--sp-5); }
-      .sidebar-cta .btn { width: 100%; padding: 12px 16px; font-size: 12px; }
+      .sidebar-cta > p { font-family: var(--font-text); font-size: 13px; color: rgba(255,255,255,.5); line-height: 1.55; margin-bottom: var(--sp-5); }
+      .nl-sidebar-form { display: flex; flex-direction: column; gap: 8px; }
+      .nl-sidebar-input {
+        width: 100%;
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: var(--r-md);
+        padding: 11px 14px;
+        font-family: var(--font-text);
+        font-size: 14px;
+        color: #fff;
+        outline: none;
+        transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+      }
+      .nl-sidebar-input::placeholder { color: rgba(255,255,255,.3); }
+      .nl-sidebar-input:focus { border-color: rgba(121,217,199,.45); background: rgba(255,255,255,.07); box-shadow: none; }
+      .nl-sidebar-btn { width: 100%; padding: 12px 16px; font-size: 13px; margin-top: 4px; justify-content: center; display: flex; align-items: center; gap: 8px; }
+      .nl-sidebar-feedback { font-family: var(--font-display); font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5; }
+      .nl-sidebar-feedback.ok  { color: var(--accent); }
+      .nl-sidebar-feedback.err { color: var(--danger); }
 
       .pagination { margin-top: var(--sp-12); padding-top: var(--sp-8); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: var(--sp-2); }
       .pag-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 10px; border-radius: var(--r-sm); font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--fg-muted); background: transparent; border: 1px solid var(--border); text-decoration: none; transition: all var(--dur-fast) var(--ease-out); cursor: pointer; }
@@ -297,20 +309,44 @@ function getCategory(post: any) {
         </a>
       </div>
 
-      <div class="sidebar-block sidebar-cta">
+      <!-- Newsletter signup — lista newsletter-br -->
+      <div class="sidebar-block sidebar-cta" id="newsletter">
         <div class="sidebar-title" style="color: rgba(121,217,199,.7);">Newsletter</div>
         <h4>Análise que vale mais do que <em>relatório de agência.</em></h4>
         <p>Sem frequência abusiva. Enviamos quando temos algo que vale o seu tempo.</p>
-        <a href="/#newsletter" class="btn btn-mint">
-          Quero receber
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </a>
+        <form class="nl-sidebar-form" id="blog-nl-form" novalidate>
+          <input
+            type="text"
+            name="name"
+            class="nl-sidebar-input"
+            placeholder="Seu nome"
+            autocomplete="name"
+            aria-label="Nome"
+            required
+          >
+          <input
+            type="email"
+            name="email"
+            class="nl-sidebar-input"
+            placeholder="Seu melhor e-mail"
+            autocomplete="email"
+            aria-label="E-mail"
+            required
+          >
+          <button type="submit" class="btn btn-mint nl-sidebar-btn">
+            <span class="btn-label">Quero receber</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+        </form>
+        <p id="blog-nl-success" class="nl-sidebar-feedback ok" style="display:none">✓ Cadastro realizado! Fique de olho na caixa de entrada.</p>
+        <p id="blog-nl-error" class="nl-sidebar-feedback err" style="display:none">Algo deu errado. Tente novamente.</p>
       </div>
     </aside>
   </div>
 
   <Fragment slot="scripts">
     <script>
+      // ── Category filter ──
       document.querySelectorAll('.pill').forEach(p => {
         p.addEventListener('click', () => {
           document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
@@ -323,6 +359,33 @@ function getCategory(post: any) {
           });
         });
       });
+
+      // ── Newsletter sidebar form ──
+      import { subscribeNewsletter } from '../../scripts/newsletter.js';
+      const form = document.getElementById('blog-nl-form') as HTMLFormElement | null;
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const fd   = new FormData(form);
+          const btn  = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+          const lbl  = btn.querySelector('.btn-label') as HTMLElement;
+          const orig = lbl.textContent;
+          lbl.textContent = 'Enviando…';
+          btn.disabled = true;
+          const ok = await subscribeNewsletter(
+            fd.get('name') as string,
+            fd.get('email') as string
+          );
+          if (ok) {
+            form.style.display = 'none';
+            document.getElementById('blog-nl-success')!.style.display = 'block';
+          } else {
+            document.getElementById('blog-nl-error')!.style.display = 'block';
+            lbl.textContent = orig;
+            btn.disabled = false;
+          }
+        });
+      }
     </script>
   </Fragment>
 </BaseLayout>
