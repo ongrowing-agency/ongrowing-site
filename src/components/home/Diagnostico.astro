@@ -1,0 +1,509 @@
+---
+// src/components/home/Diagnostico.astro
+---
+
+<section id="diagnostico">
+  <div class="diag-body">
+
+    <div class="diag-left reveal">
+      <div class="section-title-group">
+        <p class="section-num">06</p>
+        <h2>Descubra onde está o <em>gargalo</em> da sua operação</h2>
+        <p class="lead">8 perguntas. Menos de 3 minutos. Uma análise personalizada da sua arquitetura de aquisição direto no seu e-mail — com uma dica prática pra aplicar essa semana.</p>
+      </div>
+
+      <div class="promise-list">
+        <div class="promise-item">
+          <div class="promise-icon">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div class="promise-text">
+            <h4>Análise real, não relatório genérico</h4>
+            <p>Cada resposta molda o diagnóstico. Você recebe uma leitura específica do seu negócio, não um PDF padrão.</p>
+          </div>
+        </div>
+        <div class="promise-item">
+          <div class="promise-icon">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="promise-text">
+            <h4>Uma dica pra aplicar essa semana</h4>
+            <p>Sem teoria. O e-mail já vem com uma ação concreta baseada no seu maior gargalo identificado.</p>
+          </div>
+        </div>
+        <div class="promise-item">
+          <div class="promise-icon">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="promise-text">
+            <h4>Sem compromisso, sem ligação</h4>
+            <p>Nenhuma reunião obrigatória. Nenhuma proposta empurrada. Só o diagnóstico.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="diag-form-col reveal">
+      <div class="pd-ctr" id="pd-ctr" style="display:none">
+        <div class="pd-ctr-row">
+          <span class="pd-step-lbl" id="pd-step-lbl">Etapa 1 de 8</span>
+          <span class="pd-pct" id="pd-pct">0%</span>
+        </div>
+        <div class="pd-dots" id="pd-dots"></div>
+        <div class="pd-motiv" id="pd-motiv" style="display:none"></div>
+      </div>
+      <div id="pd-body"></div>
+    </div>
+
+  </div>
+</section>
+
+<style is:global>
+/* ── DIAGNOSTICO SECTION ── */
+#diagnostico {
+  background: var(--og-deep-800);
+  overflow: hidden;
+  border-bottom: none;
+  position: relative;
+}
+#diagnostico::before {
+  content: '';
+  position: absolute;
+  top: -120px; right: -120px;
+  width: 720px; height: 720px;
+  background: radial-gradient(circle, rgba(121,217,199,.06) 0%, transparent 62%);
+  pointer-events: none;
+}
+#diagnostico .section-num { color: rgba(121,217,199,.6); }
+#diagnostico .section-num::before { background: rgba(121,217,199,.4); }
+#diagnostico .section-title-group h2 { color: #fff; }
+#diagnostico .section-title-group h2 em { color: var(--accent); }
+#diagnostico .section-title-group .lead { color: rgba(255,255,255,.55); }
+
+.diag-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-10);
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .diag-body { grid-template-columns: 1fr 1fr; gap: var(--sp-20); }
+}
+.diag-form-col { position: relative; }
+
+/* ── PROGRESS COUNTER ── */
+.pd-ctr {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+.pd-ctr-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.pd-step-lbl {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,.8);
+}
+.pd-pct {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.pd-dots { display: flex; align-items: center; gap: 4px; }
+.pd-d {
+  height: 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  transition: all .35s ease;
+}
+.pd-d.done { width: 5px;  background: rgba(121,217,199,.4); }
+.pd-d.cur  { width: 22px; background: var(--accent); }
+.pd-d.next { width: 5px;  background: rgba(255,255,255,.12); }
+.pd-motiv {
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: .03em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── QUESTION CARD ── */
+.pd-card {
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  margin-bottom: 12px;
+  animation: pdIn .22s ease;
+}
+@keyframes pdIn {
+  from { opacity: 0; transform: translateX(8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.pd-q {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.45;
+  margin-bottom: 1.1rem;
+  letter-spacing: -.1px;
+}
+.pd-opts { display: flex; flex-direction: column; gap: 8px; }
+.pd-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  background: rgba(255,255,255,.025);
+  user-select: none;
+  transition: border-color .15s, background .15s;
+}
+.pd-opt:hover { border-color: rgba(121,217,199,.4); background: rgba(255,255,255,.05); }
+.pd-opt.sel   { border-color: var(--accent); background: rgba(121,217,199,.07); }
+.pd-radio {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.3);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .14s;
+}
+.pd-opt.sel .pd-radio { background: var(--accent); border-color: var(--accent); }
+.pd-rdot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--og-deep-800);
+  opacity: 0;
+  transition: opacity .14s;
+}
+.pd-opt.sel .pd-rdot { opacity: 1; }
+.pd-opt-txt {
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: rgba(255,255,255,.75);
+  line-height: 1.4;
+}
+.pd-opt.sel .pd-opt-txt { color: #fff; }
+
+/* ── NAV ROW ── */
+.pd-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pd-back {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: rgba(255,255,255,.4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 4px;
+  transition: color .14s;
+}
+.pd-back:hover { color: rgba(255,255,255,.75); }
+.pd-hint {
+  font-family: var(--font-text);
+  font-size: 12px;
+  color: rgba(255,255,255,.25);
+}
+
+/* ── CONTACT STEP ── */
+.pd-contact-tag {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.pd-contact-desc {
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+.pd-field { margin-bottom: 12px; }
+.pd-lbl {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 6px;
+  letter-spacing: .03em;
+}
+.diag-input {
+  width: 100%;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: #fff;
+  outline: none;
+  transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+}
+.diag-input::placeholder { color: rgba(255,255,255,.28); }
+.diag-input:focus { border-color: rgba(121,217,199,.5); background: rgba(255,255,255,.06); box-shadow: none; }
+.diag-btn {
+  padding: 14px 24px;
+  background: var(--accent);
+  color: var(--og-deep-800);
+  border: none;
+  border-radius: var(--r-md);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: .02em;
+  transition: opacity .15s;
+}
+.diag-btn:disabled { opacity: .3; cursor: not-allowed; }
+.diag-btn:not(:disabled):hover { opacity: .82; }
+
+/* ── SUCCESS STATE ── */
+.pd-ok {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  animation: pdIn .3s ease;
+}
+.pd-ok-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(121,217,199,.1);
+  border: 1px solid rgba(121,217,199,.28);
+  color: var(--accent);
+  font-size: 22px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+.pd-ok-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: .6rem;
+  letter-spacing: -.2px;
+}
+.pd-ok-desc {
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.65;
+  max-width: 360px;
+  margin: 0 auto;
+}
+</style>
+
+<script>
+  const QS = [
+    { id: 'fat', text: 'Qual é o faturamento mensal atual do seu e-commerce?', opts: [
+      { v: 'a', l: 'Menos de R$50k/mês' },
+      { v: 'b', l: 'R$50k – R$200k/mês' },
+      { v: 'c', l: 'R$200k – R$500k/mês' },
+      { v: 'd', l: 'Acima de R$500k/mês' }
+    ]},
+    { id: 'can', text: 'Como você atrai novos clientes hoje?', opts: [
+      { v: 'a', l: 'Só canais orgânicos (redes sociais ou SEO)' },
+      { v: 'b', l: 'Meta Ads (Facebook / Instagram)' },
+      { v: 'c', l: 'Google Ads (pesquisa ou shopping)' },
+      { v: 'd', l: 'Meta + Google ativos ao mesmo tempo' }
+    ]},
+    { id: 'inv', text: 'Quanto você investe em mídia paga por mês?', opts: [
+      { v: 'a', l: 'Não invisto em mídia paga' },
+      { v: 'b', l: 'Até R$5k/mês' },
+      { v: 'c', l: 'R$5k – R$20k/mês' },
+      { v: 'd', l: 'Acima de R$20k/mês' }
+    ]},
+    { id: 'nut', text: 'Você se comunica ativamente com seus leads e clientes?', opts: [
+      { v: 'a', l: 'Não — só quando eles me procuram' },
+      { v: 'b', l: 'Mando e-mails ou mensagens avulsas às vezes' },
+      { v: 'c', l: 'Tenho automações de e-mail ou WhatsApp ativas' },
+      { v: 'd', l: 'Uso retargeting para reimpactar quem visitou o site' }
+    ]},
+    { id: 'carr', text: 'Como você lida com quem visitou seu site e não comprou?', opts: [
+      { v: 'a', l: 'Não faço nada — perdi essa venda' },
+      { v: 'b', l: 'Mando lembrete manual às vezes' },
+      { v: 'c', l: 'Tenho automação de recuperação (e-mail ou WhatsApp)' },
+      { v: 'd', l: 'Uso retargeting + automação juntos' }
+    ]},
+    { id: 'conv', text: 'Você monitora e tenta melhorar a taxa de conversão do seu site?', opts: [
+      { v: 'a', l: 'Não — nunca trabalhei nisso' },
+      { v: 'b', l: 'Olho os números, mas não faço mudanças' },
+      { v: 'c', l: 'Faço ajustes com frequência, com base nos dados' },
+      { v: 'd', l: 'Tenho processo ativo de testes e otimização' }
+    ]},
+    { id: 'rec', text: 'Como você trabalha a base de clientes que já comprou?', opts: [
+      { v: 'a', l: 'Não tenho estratégia de pós-venda' },
+      { v: 'b', l: 'Mando promoções pontuais às vezes' },
+      { v: 'c', l: 'Tenho fluxo de pós-venda ativo (e-mail ou WhatsApp)' },
+      { v: 'd', l: 'Tenho programa de fidelidade ou recorrência' }
+    ]},
+    { id: 'gar', text: 'Onde você sente que está travando o crescimento do seu negócio?', opts: [
+      { v: 'a', l: 'Não consigo trazer visitantes qualificados' },
+      { v: 'b', l: 'Os visitantes chegam mas não compram' },
+      { v: 'c', l: 'Os clientes compram uma vez e somem' },
+      { v: 'd', l: 'Não sei identificar onde está o problema' }
+    ]}
+  ];
+
+  const MOTIVS: Record<number, string> = {
+    3: 'Você está na metade — vamos lá!',
+    5: 'Quase terminando!',
+    6: 'Falta só mais uma!',
+    7: 'Última pergunta!'
+  };
+
+  const N = QS.length;
+  let step = 0;
+  const ans: Record<string, string> = {};
+  let going = false;
+
+  function buildDots(s: number): string {
+    return Array.from({ length: N }, (_, i) => {
+      const c = i < s ? 'done' : i === s ? 'cur' : 'next';
+      return `<div class="pd-d ${c}"></div>`;
+    }).join('');
+  }
+
+  function updateCtr(s: number): void {
+    const ctr = document.getElementById('pd-ctr')!;
+    if (s >= N) { ctr.style.display = 'none'; return; }
+    ctr.style.display = 'block';
+    document.getElementById('pd-step-lbl')!.textContent = `Etapa ${s + 1} de ${N}`;
+    document.getElementById('pd-pct')!.textContent = Math.round((s / N) * 100) + '%';
+    document.getElementById('pd-dots')!.innerHTML = buildDots(s);
+    const motiv = document.getElementById('pd-motiv')!;
+    if (MOTIVS[s]) { motiv.style.display = 'flex'; motiv.textContent = MOTIVS[s]; }
+    else { motiv.style.display = 'none'; }
+  }
+
+  function render(): void {
+    const body = document.getElementById('pd-body')!;
+    updateCtr(step);
+
+    if (step < N) {
+      const q = QS[step];
+      const sel = ans[q.id];
+      body.innerHTML = `
+        <div class="pd-card">
+          <div class="pd-q">${q.text}</div>
+          <div class="pd-opts">
+            ${q.opts.map(o => `
+              <div class="pd-opt${sel === o.v ? ' sel' : ''}" data-v="${o.v}" data-qid="${q.id}">
+                <div class="pd-radio"><div class="pd-rdot"></div></div>
+                <div class="pd-opt-txt">${o.l}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="pd-nav">
+          <button class="pd-back" id="pd-back" ${step === 0 ? 'style="visibility:hidden"' : ''}>← Voltar</button>
+          <span class="pd-hint">Selecione para avançar</span>
+        </div>`;
+
+      document.querySelectorAll('.pd-opt').forEach(el => {
+        el.addEventListener('click', () => {
+          const t = el as HTMLElement;
+          pick(t.dataset.qid!, t.dataset.v!);
+        });
+      });
+      document.getElementById('pd-back')?.addEventListener('click', back);
+
+    } else if (step === N) {
+      body.innerHTML = `
+        <div class="pd-card">
+          <p class="pd-contact-tag">Último passo</p>
+          <div class="pd-q">Para onde enviamos a sua análise?</div>
+          <p class="pd-contact-desc">Com base nas suas respostas, você vai receber um diagnóstico personalizado — e uma dica prática pra aplicar ainda essa semana.</p>
+          <div class="pd-field">
+            <label class="pd-lbl">Seu nome</label>
+            <input id="pd-nm" class="diag-input" type="text" placeholder="Como prefere ser chamado?">
+          </div>
+          <div class="pd-field">
+            <label class="pd-lbl">Seu melhor e-mail</label>
+            <input id="pd-em" class="diag-input" type="email" placeholder="nome@empresa.com">
+          </div>
+        </div>
+        <div class="pd-nav">
+          <button class="pd-back" id="pd-back">← Voltar</button>
+          <button class="diag-btn" id="pd-sub" disabled>Quero meu diagnóstico →</button>
+        </div>`;
+
+      const nm = document.getElementById('pd-nm') as HTMLInputElement;
+      const em = document.getElementById('pd-em') as HTMLInputElement;
+      const sub = document.getElementById('pd-sub') as HTMLButtonElement;
+      const chk = () => {
+        sub.disabled = !(nm.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim()));
+      };
+      nm.addEventListener('input', chk);
+      em.addEventListener('input', chk);
+      sub.addEventListener('click', submitForm);
+      document.getElementById('pd-back')?.addEventListener('click', back);
+
+    } else {
+      const fn = (ans['name'] || '').split(' ')[0];
+      body.innerHTML = `
+        <div class="pd-ok">
+          <div class="pd-ok-icon">✓</div>
+          <div class="pd-ok-title">Análise a caminho${fn ? ', ' + fn : ''}!</div>
+          <p class="pd-ok-desc">Verifique sua caixa de entrada em alguns minutos. Você vai receber um diagnóstico personalizado com uma dica prática pra aplicar essa semana.</p>
+        </div>`;
+    }
+  }
+
+  function pick(id: string, v: string): void {
+    if (going) return;
+    ans[id] = v;
+    document.querySelectorAll('.pd-opt').forEach(el =>
+      el.classList.toggle('sel', (el as HTMLElement).dataset.v === v)
+    );
+    going = true;
+    setTimeout(() => { step++; going = false; render(); }, 400);
+  }
+
+  function back(): void {
+    if (step > 0) { step--; render(); }
+  }
+
+  async function submitForm(): Promise<void> {
+    ans['name']  = (document.getElementById('pd-nm') as HTMLInputElement).value.trim();
+    ans['email'] = (document.getElementById('pd-em') as HTMLInputElement).value.trim();
+    step++;
+    render();
+    try {
+      const webhook = import.meta.env.PUBLIC_N8N_DIAG_WEBHOOK;
+      if (webhook) {
+        await fetch(webhook, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ans)
+        });
+      }
+    } catch (e) {
+      console.error('Webhook error:', e);
+    }
+  }
+
+  render();
+</script>
