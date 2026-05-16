@@ -2,8 +2,8 @@ import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
   const listmonkUrl  = import.meta.env.PUBLIC_LISTMONK_URL;
-  const listmonkUser = import.meta.env.LISTMONK_API_USER;
-  const listmonkToken = import.meta.env.LISTMONK_API_TOKEN;
+  const listmonkUser = import.meta.env.PUBLIC_LISTMONK_API_USER;
+  const listmonkToken = import.meta.env.PUBLIC_LISTMONK_API_TOKEN;
   const listmonkListId = Number(import.meta.env.PUBLIC_LISTMONK_LIST_ID ?? 4);
 
   if (!listmonkUrl || !listmonkUser || !listmonkToken) {
