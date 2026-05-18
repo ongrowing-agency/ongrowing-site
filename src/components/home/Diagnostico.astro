@@ -158,6 +158,7 @@
 .promise-item {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--sp-3);
   padding: var(--sp-5) var(--sp-5);
   background: rgba(255,255,255,.04);
@@ -251,9 +252,14 @@
 }
 
 /* ── QUESTION CARD ── */
-/* Sem border/bg próprio — o card externo já envolve tudo */
+/* Override explícito: anula qualquer background/border vindo do CSS global */
 .pd-card {
   padding: 20px 20px 0;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin-bottom: 0 !important;
   animation: pdIn .22s ease;
 }
 @keyframes pdIn {
@@ -481,12 +487,22 @@
 @media (max-width: 960px) {
   .diag-grid {
     grid-template-columns: 1fr;
-    gap: var(--sp-12);
+    gap: var(--sp-8);
   }
-  .diag-right { position: static; }
+  /* Form aparece ANTES dos benefits no mobile */
+  .diag-right {
+    position: static;
+    order: -1;
+  }
+  .diag-left {
+    order: 1;
+    gap: var(--sp-6);
+  }
 }
 @media (max-width: 560px) {
-  .diag-promises { grid-template-columns: 1fr; }
+  .diag-grid { gap: var(--sp-6); }
+  .diag-promises { grid-template-columns: 1fr; gap: 8px; }
+  .promise-item { padding: var(--sp-4); }
 }
 </style>
 
