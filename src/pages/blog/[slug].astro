@@ -245,21 +245,192 @@ function formatDate(dateStr: string) {
       .post-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--fg-subtle); opacity: .5; }
       .post-meta .item { display: inline-flex; align-items: center; gap: 6px; }
 
-      .post-newsletter { background: var(--og-deep-800); padding: var(--sp-12) var(--gutter); position: relative; overflow: hidden; }
-      @media (min-width: 768px) { .post-newsletter { padding: var(--sp-16) var(--gutter); } }
-      @media (min-width: 1024px) { .post-newsletter { padding: var(--sp-20) var(--gutter); } }
-      .post-newsletter::before { content: ''; position: absolute; top: -100px; right: -100px; width: 640px; height: 640px; background: radial-gradient(circle, rgba(121,217,199,.07) 0%, transparent 65%); pointer-events: none; }
-      .post-nl-inner { max-width: 880px; margin: 0 auto; position: relative; }
-      .post-nl-eyebrow { font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; color: var(--accent); margin-bottom: var(--sp-5); display: inline-flex; align-items: center; gap: var(--sp-3); }
-      .post-nl-eyebrow::before { content: ''; display: inline-block; width: 26px; height: 1px; background: var(--accent); opacity: .8; }
-      .post-newsletter h3 { font-family: var(--font-display); font-size: clamp(28px, 3vw, 38px); font-weight: 700; color: #fff; letter-spacing: -.8px; line-height: 1.15; margin-bottom: var(--sp-5); text-wrap: balance; }
+      /* ─────────────────────────────────────────────
+         NEWSLETTER — layout corrigido (duas colunas)
+         ───────────────────────────────────────────── */
+      .post-newsletter {
+        background: var(--og-deep-800);
+        padding: var(--sp-16) var(--gutter);
+        position: relative;
+        overflow: hidden;
+      }
+      @media (min-width: 768px) { .post-newsletter { padding: var(--sp-20) var(--gutter); } }
+      .post-newsletter::before {
+        content: '';
+        position: absolute;
+        top: -100px; right: -100px;
+        width: 640px; height: 640px;
+        background: radial-gradient(circle, rgba(121,217,199,.07) 0%, transparent 65%);
+        pointer-events: none;
+      }
+
+      /* Wrapper centralizado */
+      .post-nl-inner {
+        max-width: 1080px;
+        margin: 0 auto;
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 72px;
+        align-items: center;
+      }
+      @media (max-width: 860px) {
+        .post-nl-inner { grid-template-columns: 1fr; gap: var(--sp-12); }
+      }
+
+      /* Coluna esquerda */
+      .post-nl-left {}
+
+      .post-nl-eyebrow {
+        font-family: var(--font-display);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: var(--sp-5);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-3);
+      }
+      .post-nl-eyebrow::before {
+        content: '';
+        display: inline-block;
+        width: 26px; height: 1px;
+        background: var(--accent);
+        opacity: .8;
+      }
+
+      .post-newsletter h3 {
+        font-family: var(--font-display);
+        font-size: clamp(26px, 3vw, 36px);
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -.8px;
+        line-height: 1.15;
+        margin-bottom: var(--sp-5);
+        text-wrap: balance;
+      }
       .post-newsletter h3 em { font-style: italic; color: var(--accent); }
-      .post-newsletter > .post-nl-inner > p { font-family: var(--font-text); font-size: 18px; color: rgba(255,255,255,.6); line-height: 1.6; max-width: 580px; margin-bottom: var(--sp-8); font-weight: 300; }
-      .post-nl-form { display: flex; gap: var(--sp-3); max-width: 520px; flex-wrap: wrap; }
-      .post-nl-form input { flex: 1; min-width: 180px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: var(--r-md); padding: 15px 20px; font-family: var(--font-text); font-size: 15px; color: #fff; outline: none; transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
-      .post-nl-form input::placeholder { color: rgba(255,255,255,.32); }
-      .post-nl-form input:focus { border-color: rgba(121,217,199,.5); background: rgba(255,255,255,.06); box-shadow: none; }
-      .post-nl-disc { margin-top: var(--sp-5); font-family: var(--font-text); font-size: 13px; color: rgba(255,255,255,.3); }
+
+      .post-nl-lead {
+        font-family: var(--font-text);
+        font-size: 16px;
+        color: rgba(255,255,255,.55);
+        line-height: 1.65;
+        font-weight: 300;
+        margin-bottom: var(--sp-8);
+      }
+
+      /* Bullets de valor */
+      .post-nl-bullets {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .post-nl-bullet {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-text);
+        font-size: 13.5px;
+        color: rgba(255,255,255,.6);
+      }
+      .post-nl-bullet::before {
+        content: '';
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: .7;
+        flex-shrink: 0;
+      }
+
+      /* Coluna direita — card do formulário */
+      .post-nl-card {
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: var(--r-lg);
+        padding: var(--sp-8);
+      }
+
+      .post-nl-card-title {
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 6px;
+        letter-spacing: -.2px;
+      }
+
+      .post-nl-card-sub {
+        font-family: var(--font-text);
+        font-size: 13px;
+        color: rgba(255,255,255,.45);
+        line-height: 1.55;
+        margin-bottom: var(--sp-6);
+      }
+
+      /* Campos */
+      .post-nl-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .post-nl-form input {
+        width: 100%;
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: var(--r-md);
+        padding: 13px 16px;
+        font-family: var(--font-text);
+        font-size: 14px;
+        color: #fff;
+        outline: none;
+        transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+      }
+      .post-nl-form input::placeholder { color: rgba(255,255,255,.28); }
+      .post-nl-form input:focus { border-color: rgba(121,217,199,.5); background: rgba(255,255,255,.07); box-shadow: none; }
+
+      /* Botão full-width */
+      .post-nl-form .btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 4px;
+      }
+
+      /* Trust signals */
+      .post-nl-trust {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: var(--sp-5);
+      }
+      .post-nl-trust-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-family: var(--font-text);
+        font-size: 11px;
+        color: rgba(255,255,255,.28);
+      }
+      .post-nl-trust-item svg {
+        width: 11px; height: 11px;
+        stroke: rgba(121,217,199,.45);
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+      }
+      .post-nl-trust-sep {
+        width: 3px; height: 3px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.15);
+        flex-shrink: 0;
+      }
+
       .nl-msg { font-family: var(--font-display); font-size: 12px; font-weight: 600; margin-top: var(--sp-3); letter-spacing: .3px; display: none; }
       .nl-msg.ok { color: var(--accent); }
       .nl-msg.err { color: #ff6b6b; }
@@ -395,21 +566,59 @@ function formatDate(dateStr: string) {
     </section>
   )}
 
+  <!-- ── NEWSLETTER — duas colunas ── -->
   <section class="post-newsletter">
     <div class="post-nl-inner">
-      <div class="post-nl-eyebrow">Newsletter</div>
-      <h3>Quer ficar por dentro do que <em>realmente importa?</em></h3>
-      <p>Posts novos, cursos, cases e atualizações de mercado (só quando vale a pena abrir).</p>
-      <form class="post-nl-form" id="nl-form-post">
-        <input type="text" id="nl-name-post" placeholder="Seu nome" autocomplete="name" aria-label="Nome">
-        <input type="email" id="nl-email-post" placeholder="Seu melhor e-mail" autocomplete="email" aria-label="E-mail" required>
-        <button class="btn btn-mint" type="submit">
-          Quero receber
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </button>
-      </form>
-      <p class="nl-msg" id="nl-msg-post"></p>
-      <p class="post-nl-disc">LGPD-compliant · Seus dados protegidos · Desinscrição a qualquer momento</p>
+
+      <!-- Esquerda: pitch -->
+      <div class="post-nl-left">
+        <div class="post-nl-eyebrow">Newsletter</div>
+        <h3>Quer ficar por dentro do que <em>realmente importa?</em></h3>
+        <p class="post-nl-lead">Posts novos, cursos, cases e atualizações de mercado, só quando vale a pena abrir.</p>
+        <div class="post-nl-bullets">
+          <span class="post-nl-bullet">Estratégia de aquisição digital na prática</span>
+          <span class="post-nl-bullet">Cases reais com números e aprendizados</span>
+          <span class="post-nl-bullet">Automações, IA e tráfego pago sem enrolação</span>
+          <span class="post-nl-bullet">Sem frequência forçada, só quando tiver algo útil</span>
+        </div>
+      </div>
+
+      <!-- Direita: card do formulário -->
+      <div class="post-nl-right">
+        <div class="post-nl-card">
+          <h4 class="post-nl-card-title">Receba o conteúdo da Ongrowing</h4>
+          <p class="post-nl-card-sub">Direto no seu e-mail, sem spam e sem frequência forçada.</p>
+
+          <form class="post-nl-form" id="nl-form-post">
+            <input type="text"  id="nl-name-post"  placeholder="Seu nome"         autocomplete="name"  aria-label="Nome">
+            <input type="email" id="nl-email-post" placeholder="Seu melhor e-mail" autocomplete="email" aria-label="E-mail" required>
+            <button class="btn btn-mint" type="submit">
+              Quero receber
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </form>
+
+          <p class="nl-msg" id="nl-msg-post"></p>
+
+          <div class="post-nl-trust">
+            <span class="post-nl-trust-item">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              LGPD-compliant
+            </span>
+            <span class="post-nl-trust-sep"></span>
+            <span class="post-nl-trust-item">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Dados protegidos
+            </span>
+            <span class="post-nl-trust-sep"></span>
+            <span class="post-nl-trust-item">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Cancele quando quiser
+            </span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
