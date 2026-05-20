@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Topbar from '../../components/Topbar.astro';
-import { getPosts } from '../../lib/sanity';
+import { getPosts, urlFor } from '../../lib/sanity';
 
 const page = Number(Astro.url.searchParams.get('p') || 1);
 const pageSize = 8;
@@ -40,6 +40,12 @@ function formatDate(dateStr: string) {
 }
 function getSlug(post: any) { return post.slug?.current || post.slug || '#'; }
 function getCategory(post: any) { return post.category || post.categories?.[0] || ''; }
+function getCoverUrl(post: any, w: number, h: number) {
+  if (!post?.cover?.asset) return null;
+  try { return urlFor(post.cover).width(w).height(h).fit('crop').auto('format').url(); }
+  catch { return null; }
+}
+const featuredCover = getCoverUrl(featuredPost, 960, 720);
 ---
 <BaseLayout
   title="Blog — Ongrowing"
@@ -77,6 +83,12 @@ function getCategory(post: any) { return post.category || post.categories?.[0] |
       @media (min-width: 768px) { .hero-post-img { min-height: 280px; } }
       @media (min-width: 1024px) { .hero-post-img { min-height: 380px; } }
       .hero-post-img::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 70% 40%, rgba(121,217,199,.12) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(121,217,199,.06) 0%, transparent 55%); pointer-events: none; }
+      .hero-post-img .cover-img,
+      .post-card-img .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
+      .hero-post-img .badge,
+      .post-card-img .post-card-tag { z-index: 2; }
+      .hero-post-img.has-cover::before,
+      .post-card-img.has-cover::before { display: none; }
       .hero-post-img .glyph { width: 200px; height: 200px; opacity: .14; color: var(--accent); }
       .hero-post-img .glyph svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linejoin: round; stroke-linecap: round; }
       .hero-post-img .badge { position: absolute; top: var(--sp-6); left: var(--sp-6); display: inline-flex; align-items: center; gap: var(--sp-2); background: rgba(121,217,199,.12); border: 1px solid rgba(121,217,199,.28); color: var(--accent); font-family: var(--font-display); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; padding: 6px 12px; border-radius: var(--r-pill); backdrop-filter: blur(8px); }
@@ -205,11 +217,14 @@ function getCategory(post: any) { return post.category || post.categories?.[0] |
   <!-- Featured post -->
   <div class="hero-post-wrap">
     <a href={`/blog/${getSlug(featuredPost)}/`} class="hero-post">
-      <div class="hero-post-img">
+      <div class={`hero-post-img${featuredCover ? ' has-cover' : ''}`}>
+        {featuredCover && <img class="cover-img" src={featuredCover} alt={featuredPost.title} loading="eager" />}
         <div class="badge">Em destaque</div>
-        <div class="glyph">
-          <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-        </div>
+        {!featuredCover && (
+          <div class="glyph">
+            <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+          </div>
+        )}
       </div>
       <div class="hero-post-content">
         <span class="post-category">{getCategory(featuredPost)}</span>
@@ -242,13 +257,17 @@ function getCategory(post: any) { return post.category || post.categories?.[0] |
         {gridPosts.map((post: any, i: number) => {
           const v = post.variant || ((i % 8) + 1);
           const cat = getCategory(post);
+          const coverUrl = getCoverUrl(post, 640, 400);
           return (
             <a href={`/blog/${getSlug(post)}/`} class="post-card" data-category={cat}>
-              <div class={`post-card-img img-v${v}`}>
+              <div class={`post-card-img img-v${v}${coverUrl ? ' has-cover' : ''}`}>
+                {coverUrl && <img class="cover-img" src={coverUrl} alt={post.title} loading="lazy" />}
                 <span class="post-card-tag">{cat}</span>
-                <div class="glyph">
-                  <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-                </div>
+                {!coverUrl && (
+                  <div class="glyph">
+                    <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+                  </div>
+                )}
               </div>
               <span class="post-category">{cat}</span>
               <h3>{post.title}</h3>
