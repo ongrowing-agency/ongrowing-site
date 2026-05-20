@@ -36,7 +36,8 @@ export async function getPosts(page = 1, pageSize = 8) {
   const start = (page - 1) * pageSize;
   return sanityClient.fetch(`
     *[_type == "post"] | order(publishedAt desc) [$start...$end] {
-      _id, title, slug, excerpt, cover, publishedAt, categories,
+      _id, title, slug, excerpt, publishedAt, categories,
+      cover { asset-> },
       "readTime": round(length(pt::text(body)) / 5 / 180)
     }
   `, { start, end: start + pageSize });
@@ -45,7 +46,8 @@ export async function getPosts(page = 1, pageSize = 8) {
 export async function getPost(slug: string) {
   return sanityClient.fetch(`
     *[_type == "post" && slug.current == $slug][0] {
-      _id, title, slug, excerpt, cover, body, publishedAt, categories
+      _id, title, slug, excerpt, body, publishedAt, categories,
+      cover { asset-> }
     }
   `, { slug });
 }
