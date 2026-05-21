@@ -11,6 +11,16 @@
     </p>
 
     <form class="cursos-overlay-form" id="cursos-overlay-form" novalidate>
+      <label class="cursos-overlay-label" for="cursos-overlay-name">Nome</label>
+      <input
+        type="text"
+        id="cursos-overlay-name"
+        name="name"
+        class="cursos-overlay-input cursos-overlay-input-block"
+        placeholder="Seu nome"
+        autocomplete="name"
+        required
+      />
       <label class="cursos-overlay-label" for="cursos-overlay-email">E-mail</label>
       <div class="cursos-overlay-row">
         <input
@@ -142,6 +152,7 @@
     background: rgba(255, 255, 255, 0.08);
   }
   .cursos-overlay-input:disabled { opacity: 0.6; cursor: not-allowed; }
+  .cursos-overlay-input-block { display: block; width: 100%; margin-bottom: var(--sp-4); }
 
   .cursos-overlay-btn {
     display: inline-flex;
@@ -214,12 +225,13 @@
   type State = 'idle' | 'loading' | 'success' | 'error';
 
   const form = document.getElementById('cursos-overlay-form') as HTMLFormElement | null;
-  const input = document.getElementById('cursos-overlay-email') as HTMLInputElement | null;
+  const nameInput = document.getElementById('cursos-overlay-name') as HTMLInputElement | null;
+  const emailInput = document.getElementById('cursos-overlay-email') as HTMLInputElement | null;
   const submit = document.getElementById('cursos-overlay-submit') as HTMLButtonElement | null;
   const errorEl = document.getElementById('cursos-overlay-error') as HTMLElement | null;
   const successEl = document.getElementById('cursos-overlay-success') as HTMLElement | null;
 
-  if (form && input && submit && errorEl && successEl) {
+  if (form && nameInput && emailInput && submit && errorEl && successEl) {
     let state: State = 'idle';
 
     const setState = (next: State, message = '') => {
@@ -230,7 +242,8 @@
 
       form.classList.toggle('is-loading', loading);
       submit.disabled = loading;
-      input.disabled = loading;
+      nameInput.disabled = loading;
+      emailInput.disabled = loading;
 
       form.hidden = success;
       successEl.hidden = !success;
@@ -244,7 +257,13 @@
       e.preventDefault();
       if (state === 'loading') return;
 
-      const email = input.value.trim();
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+
+      if (!name) {
+        setState('error', 'Informe seu nome.');
+        return;
+      }
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         setState('error', 'Informe um e-mail válido.');
@@ -257,7 +276,7 @@
         const res = await fetch('/api/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, list_ids: [4] }),
+          body: JSON.stringify({ name, email, list_ids: [4] }),
         });
 
         if (res.ok === true) {
