@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Topbar from '../../components/Topbar.astro';
+import CursosOverlay from '../../components/cursos/CursosOverlay.astro';
 import { getCourses } from '../../lib/sanity';
 
 let courses: any[] = [];
@@ -319,6 +320,8 @@ const categories = ['Todos', 'Tráfego pago', 'Automação', 'Estratégia', 'E-m
   </Fragment>
 
   <Topbar />
+
+  <CursosOverlay />
 
   <div class="page-header">
     <img src="/assets/mark-light.png" alt="" class="page-header-mark" aria-hidden="true">

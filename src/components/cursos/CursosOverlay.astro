@@ -1,0 +1,261 @@
+---
+// Overlay permanente "em breve" para a página de cursos.
+// Cobre a viewport, captura inscrições na newsletter e não pode ser fechado.
+---
+<div class="cursos-overlay" role="dialog" aria-modal="true" aria-labelledby="cursos-overlay-title">
+  <div class="cursos-overlay-card">
+    <span class="cursos-overlay-eyebrow">Cursos Ongrowing</span>
+    <h2 id="cursos-overlay-title" class="cursos-overlay-title">Em breve</h2>
+    <p class="cursos-overlay-subtitle">
+      Estamos preparando algo. Deixe seu e-mail e você será o primeiro a saber.
+    </p>
+
+    <form class="cursos-overlay-form" id="cursos-overlay-form" novalidate>
+      <label class="cursos-overlay-label" for="cursos-overlay-email">E-mail</label>
+      <div class="cursos-overlay-row">
+        <input
+          type="email"
+          id="cursos-overlay-email"
+          name="email"
+          class="cursos-overlay-input"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          required
+        />
+        <button type="submit" class="cursos-overlay-btn" id="cursos-overlay-submit">
+          <span class="cursos-overlay-btn-label">Quero saber primeiro</span>
+          <span class="cursos-overlay-btn-spinner" aria-hidden="true"></span>
+        </button>
+      </div>
+      <p class="cursos-overlay-msg cursos-overlay-msg-error" id="cursos-overlay-error" role="alert" hidden></p>
+    </form>
+
+    <div class="cursos-overlay-success" id="cursos-overlay-success" hidden>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 6 9 17l-5-5"/>
+      </svg>
+      <p>Cadastro confirmado! Te avisamos no lançamento.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cursos-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-6);
+    background: rgba(1, 46, 64, 0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    overflow-y: auto;
+  }
+
+  .cursos-overlay-card {
+    background: #012E40;
+    border: 1px solid rgba(121, 217, 199, 0.25);
+    border-radius: var(--r-lg);
+    padding: var(--sp-10) var(--sp-8);
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 28px 64px rgba(0, 0, 0, 0.35);
+    text-align: left;
+  }
+  @media (min-width: 640px) {
+    .cursos-overlay-card { padding: var(--sp-12) var(--sp-10); }
+  }
+
+  .cursos-overlay-eyebrow {
+    display: inline-block;
+    font-family: var(--font-text);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #79D9C7;
+    margin-bottom: var(--sp-4);
+  }
+
+  .cursos-overlay-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 44px);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+    letter-spacing: -0.8px;
+    margin: 0 0 var(--sp-3);
+  }
+
+  .cursos-overlay-subtitle {
+    font-family: var(--font-text);
+    font-size: 15px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin: 0 0 var(--sp-8);
+  }
+
+  .cursos-overlay-form { display: block; }
+
+  .cursos-overlay-label {
+    display: block;
+    font-family: var(--font-text);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: var(--sp-2);
+  }
+
+  .cursos-overlay-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+  @media (min-width: 560px) {
+    .cursos-overlay-row { flex-direction: row; }
+  }
+
+  .cursos-overlay-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--r-sm);
+    padding: 13px 16px;
+    font-family: var(--font-text);
+    font-size: 15px;
+    color: #fff;
+    outline: none;
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+    min-width: 0;
+  }
+  .cursos-overlay-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+  .cursos-overlay-input:focus {
+    border-color: #79D9C7;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .cursos-overlay-input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .cursos-overlay-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-2);
+    background: #79D9C7;
+    color: #012E40;
+    border: none;
+    border-radius: var(--r-sm);
+    padding: 13px 22px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+  .cursos-overlay-btn:hover:not(:disabled) { background: #98E3D6; }
+  .cursos-overlay-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+  .cursos-overlay-btn-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(1, 46, 64, 0.3);
+    border-top-color: #012E40;
+    border-radius: 50%;
+    animation: cursos-overlay-spin 0.7s linear infinite;
+  }
+  .cursos-overlay-form.is-loading .cursos-overlay-btn-spinner { display: inline-block; }
+  .cursos-overlay-form.is-loading .cursos-overlay-btn-label { opacity: 0.7; }
+
+  @keyframes cursos-overlay-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .cursos-overlay-msg {
+    font-family: var(--font-text);
+    font-size: 13px;
+    font-weight: 500;
+    margin: var(--sp-3) 0 0;
+    line-height: 1.5;
+  }
+  .cursos-overlay-msg-error { color: #ff9b9b; }
+
+  .cursos-overlay-success {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    background: rgba(121, 217, 199, 0.1);
+    border: 1px solid rgba(121, 217, 199, 0.3);
+    border-radius: var(--r-sm);
+    padding: var(--sp-4) var(--sp-5);
+    color: #79D9C7;
+  }
+  .cursos-overlay-success p {
+    margin: 0;
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 500;
+    color: #D8F2EB;
+    line-height: 1.5;
+  }
+  .cursos-overlay-success svg { flex-shrink: 0; margin-top: 2px; }
+</style>
+
+<script>
+  const form = document.getElementById('cursos-overlay-form') as HTMLFormElement | null;
+  const input = document.getElementById('cursos-overlay-email') as HTMLInputElement | null;
+  const submit = document.getElementById('cursos-overlay-submit') as HTMLButtonElement | null;
+  const errorEl = document.getElementById('cursos-overlay-error') as HTMLElement | null;
+  const successEl = document.getElementById('cursos-overlay-success') as HTMLElement | null;
+
+  if (form && input && submit && errorEl && successEl) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+
+      errorEl.hidden = true;
+      errorEl.textContent = '';
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorEl.textContent = 'Informe um e-mail válido.';
+        errorEl.hidden = false;
+        return;
+      }
+
+      form.classList.add('is-loading');
+      submit.disabled = true;
+      input.disabled = true;
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, list_ids: [4] }),
+        });
+
+        if (res.ok) {
+          form.hidden = true;
+          successEl.hidden = false;
+        } else {
+          errorEl.textContent = 'Não foi possível concluir o cadastro. Tente novamente.';
+          errorEl.hidden = false;
+          form.classList.remove('is-loading');
+          submit.disabled = false;
+          input.disabled = false;
+        }
+      } catch {
+        errorEl.textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
+        errorEl.hidden = false;
+        form.classList.remove('is-loading');
+        submit.disabled = false;
+        input.disabled = false;
+      }
+    });
+  }
+</script>
