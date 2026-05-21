@@ -1,11 +1,13 @@
 ---
 const clients = [
-  { name: 'Masterpinus', tag: 'Painéis de madeira' },
-  { name: 'Livraria Cordeiro', tag: 'E-commerce' },
-  { name: 'Braslimpo', tag: 'Suprimentos' },
-  { name: 'Motorola', tag: 'Eletrônicos' },
-  { name: 'New York Pets', tag: 'Pet store · EUA' },
-  { name: 'Login Informática', tag: 'Informática' },
+  { name: 'Masterpinus', tag: 'Painéis de madeira', logo: '/assets/clients/masterpinus.png' },
+  { name: 'Livraria Cordeiro', tag: 'E-commerce', logo: '/assets/clients/cordeiro.png' },
+  { name: 'Braslimpo', tag: 'Suprimentos', logo: '/assets/clients/braslimpo.png' },
+  { name: 'Motorola', tag: 'Eletrônicos', logo: '/assets/clients/motorola.png' },
+  { name: 'New York Pets', tag: 'Pet store · EUA', logo: '/assets/clients/newyorkpets.png' },
+  { name: 'Login Informática', tag: 'Informática', logo: '/assets/clients/login-informatica.png' },
+  { name: 'Theoric', tag: '...', logo: '/assets/clients/theoric.png' },
+  { name: 'Colaí', tag: '...', logo: '/assets/clients/colai.png' },
 ];
 ---
 <div id="clientes">
@@ -13,12 +15,11 @@ const clients = [
   <div class="carousel-wrap">
     <div class="carousel-track" id="track">
       {clients.map(c => (
-        <div class="client-logo">
-          <div class="logo-inner">
-            <div class="logo-text">{c.name}</div>
-            <div class="logo-tag">{c.tag}</div>
-          </div>
+          <div class="client-logo">
+        <div class="logo-inner">
+          <img src={c.logo} alt={c.name} style="max-height: 80px; max-width: 220px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.7;" />
         </div>
+      </div>
       ))}
     </div>
   </div>

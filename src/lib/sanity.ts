@@ -52,6 +52,15 @@ export async function getPost(slug: string) {
   `, { slug });
 }
 
+export async function getRecentPosts(limit = 4) {
+  return sanityClient.fetch(`
+    *[_type == "post"] | order(publishedAt desc) [0...$limit] {
+      _id, title, slug, categories,
+      "readTime": round(length(pt::text(body)) / 5 / 180)
+    }
+  `, { limit });
+}
+
 export async function getLegalPage(slug: string) {
   return sanityClient.fetch(`
     *[_type == "legalPage" && slug.current == $slug][0] {

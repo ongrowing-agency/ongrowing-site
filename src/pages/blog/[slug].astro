@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Topbar from '../../components/Topbar.astro';
-import { getPost } from '../../lib/sanity';
+import { getPost, urlFor } from '../../lib/sanity';
 import { toHTML } from '@portabletext/to-html';
 
 const { slug } = Astro.params;
@@ -245,192 +245,31 @@ function formatDate(dateStr: string) {
       .post-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--fg-subtle); opacity: .5; }
       .post-meta .item { display: inline-flex; align-items: center; gap: 6px; }
 
-      /* ─────────────────────────────────────────────
-         NEWSLETTER — layout corrigido (duas colunas)
-         ───────────────────────────────────────────── */
-      .post-newsletter {
-        background: var(--og-deep-800);
-        padding: var(--sp-16) var(--gutter);
-        position: relative;
-        overflow: hidden;
-      }
+      .post-newsletter { background: var(--og-deep-800); padding: var(--sp-16) var(--gutter); position: relative; overflow: hidden; }
       @media (min-width: 768px) { .post-newsletter { padding: var(--sp-20) var(--gutter); } }
-      .post-newsletter::before {
-        content: '';
-        position: absolute;
-        top: -100px; right: -100px;
-        width: 640px; height: 640px;
-        background: radial-gradient(circle, rgba(121,217,199,.07) 0%, transparent 65%);
-        pointer-events: none;
-      }
-
-      /* Wrapper centralizado */
-      .post-nl-inner {
-        max-width: 1080px;
-        margin: 0 auto;
-        position: relative;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 72px;
-        align-items: center;
-      }
-      @media (max-width: 860px) {
-        .post-nl-inner { grid-template-columns: 1fr; gap: var(--sp-12); }
-      }
-
-      /* Coluna esquerda */
-      .post-nl-left {}
-
-      .post-nl-eyebrow {
-        font-family: var(--font-display);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        font-weight: 700;
-        color: var(--accent);
-        margin-bottom: var(--sp-5);
-        display: inline-flex;
-        align-items: center;
-        gap: var(--sp-3);
-      }
-      .post-nl-eyebrow::before {
-        content: '';
-        display: inline-block;
-        width: 26px; height: 1px;
-        background: var(--accent);
-        opacity: .8;
-      }
-
-      .post-newsletter h3 {
-        font-family: var(--font-display);
-        font-size: clamp(26px, 3vw, 36px);
-        font-weight: 700;
-        color: #fff;
-        letter-spacing: -.8px;
-        line-height: 1.15;
-        margin-bottom: var(--sp-5);
-        text-wrap: balance;
-      }
+      .post-newsletter::before { content: ''; position: absolute; top: -100px; right: -100px; width: 640px; height: 640px; background: radial-gradient(circle, rgba(121,217,199,.07) 0%, transparent 65%); pointer-events: none; }
+      .post-nl-inner { max-width: 1080px; margin: 0 auto; position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
+      @media (max-width: 860px) { .post-nl-inner { grid-template-columns: 1fr; gap: var(--sp-12); } }
+      .post-nl-eyebrow { font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; color: var(--accent); margin-bottom: var(--sp-5); display: inline-flex; align-items: center; gap: var(--sp-3); }
+      .post-nl-eyebrow::before { content: ''; display: inline-block; width: 26px; height: 1px; background: var(--accent); opacity: .8; }
+      .post-newsletter h3 { font-family: var(--font-display); font-size: clamp(26px, 3vw, 36px); font-weight: 700; color: #fff; letter-spacing: -.8px; line-height: 1.15; margin-bottom: var(--sp-5); text-wrap: balance; }
       .post-newsletter h3 em { font-style: italic; color: var(--accent); }
-
-      .post-nl-lead {
-        font-family: var(--font-text);
-        font-size: 16px;
-        color: rgba(255,255,255,.55);
-        line-height: 1.65;
-        font-weight: 300;
-        margin-bottom: var(--sp-8);
-      }
-
-      /* Bullets de valor */
-      .post-nl-bullets {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-      .post-nl-bullet {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: var(--font-text);
-        font-size: 13.5px;
-        color: rgba(255,255,255,.6);
-      }
-      .post-nl-bullet::before {
-        content: '';
-        width: 5px; height: 5px;
-        border-radius: 50%;
-        background: var(--accent);
-        opacity: .7;
-        flex-shrink: 0;
-      }
-
-      /* Coluna direita — card do formulário */
-      .post-nl-card {
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.09);
-        border-radius: var(--r-lg);
-        padding: var(--sp-8);
-      }
-
-      .post-nl-card-title {
-        font-family: var(--font-display);
-        font-size: 17px;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 6px;
-        letter-spacing: -.2px;
-      }
-
-      .post-nl-card-sub {
-        font-family: var(--font-text);
-        font-size: 13px;
-        color: rgba(255,255,255,.45);
-        line-height: 1.55;
-        margin-bottom: var(--sp-6);
-      }
-
-      /* Campos */
-      .post-nl-form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .post-nl-form input {
-        width: 100%;
-        background: rgba(255,255,255,.05);
-        border: 1px solid rgba(255,255,255,.12);
-        border-radius: var(--r-md);
-        padding: 13px 16px;
-        font-family: var(--font-text);
-        font-size: 14px;
-        color: #fff;
-        outline: none;
-        transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
-      }
+      .post-nl-lead { font-family: var(--font-text); font-size: 16px; color: rgba(255,255,255,.55); line-height: 1.65; font-weight: 300; margin-bottom: var(--sp-8); }
+      .post-nl-bullets { display: flex; flex-direction: column; gap: 10px; }
+      .post-nl-bullet { display: flex; align-items: center; gap: 10px; font-family: var(--font-text); font-size: 13.5px; color: rgba(255,255,255,.6); }
+      .post-nl-bullet::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: .7; flex-shrink: 0; }
+      .post-nl-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); border-radius: var(--r-lg); padding: var(--sp-8); }
+      .post-nl-card-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -.2px; }
+      .post-nl-card-sub { font-family: var(--font-text); font-size: 13px; color: rgba(255,255,255,.45); line-height: 1.55; margin-bottom: var(--sp-6); }
+      .post-nl-form { display: flex; flex-direction: column; gap: 10px; }
+      .post-nl-form input { width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: var(--r-md); padding: 13px 16px; font-family: var(--font-text); font-size: 14px; color: #fff; outline: none; transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
       .post-nl-form input::placeholder { color: rgba(255,255,255,.28); }
       .post-nl-form input:focus { border-color: rgba(121,217,199,.5); background: rgba(255,255,255,.07); box-shadow: none; }
-
-      /* Botão full-width */
-      .post-nl-form .btn {
-        width: 100%;
-        justify-content: center;
-        margin-top: 4px;
-      }
-
-      /* Trust signals */
-      .post-nl-trust {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-top: var(--sp-5);
-      }
-      .post-nl-trust-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-family: var(--font-text);
-        font-size: 11px;
-        color: rgba(255,255,255,.28);
-      }
-      .post-nl-trust-item svg {
-        width: 11px; height: 11px;
-        stroke: rgba(121,217,199,.45);
-        fill: none;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        flex-shrink: 0;
-      }
-      .post-nl-trust-sep {
-        width: 3px; height: 3px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.15);
-        flex-shrink: 0;
-      }
-
+      .post-nl-form .btn { width: 100%; justify-content: center; margin-top: 4px; }
+      .post-nl-trust { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: var(--sp-5); }
+      .post-nl-trust-item { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-text); font-size: 11px; color: rgba(255,255,255,.28); }
+      .post-nl-trust-item svg { width: 11px; height: 11px; stroke: rgba(121,217,199,.45); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+      .post-nl-trust-sep { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.15); flex-shrink: 0; }
       .nl-msg { font-family: var(--font-display); font-size: 12px; font-weight: 600; margin-top: var(--sp-3); letter-spacing: .3px; display: none; }
       .nl-msg.ok { color: var(--accent); }
       .nl-msg.err { color: #ff6b6b; }
@@ -448,9 +287,17 @@ function formatDate(dateStr: string) {
   </nav>
 
   <figure class="post-cover">
-    <div class="glyph">
-      <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-    </div>
+    {post?.cover?.asset ? (
+      <img
+        src={urlFor(post.cover).width(1600).height(900).fit('crop').auto('format').url()}
+        alt={post.title}
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
+      />
+    ) : (
+      <div class="glyph">
+        <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+      </div>
+    )}
   </figure>
 
   <header class="post-header">
@@ -508,7 +355,7 @@ function formatDate(dateStr: string) {
           <p class="role-line">Founder & CEO · Ongrowing Negócios Digitais</p>
           <p>Operando aquisição digital para e-commerce há mais de uma década. Acredita que sistema bem montado vence campanha bem otimizada — e que o trabalho começa, sempre, pelo diagnóstico. Toca as contas do portfólio com poucos clientes por opção.</p>
           <div class="bio-links">
-            <a href="https://www.linkedin.com/in/" target="_blank" rel="noopener">
+            <a href="https://www.linkedin.com/in/viniciusdossantos/" target="_blank" rel="noopener">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
               LinkedIn
             </a>
@@ -566,11 +413,8 @@ function formatDate(dateStr: string) {
     </section>
   )}
 
-  <!-- ── NEWSLETTER — duas colunas ── -->
   <section class="post-newsletter">
     <div class="post-nl-inner">
-
-      <!-- Esquerda: pitch -->
       <div class="post-nl-left">
         <div class="post-nl-eyebrow">Newsletter</div>
         <h3>Quer ficar por dentro do que <em>realmente importa?</em></h3>
@@ -582,24 +426,19 @@ function formatDate(dateStr: string) {
           <span class="post-nl-bullet">Sem frequência forçada, só quando tiver algo útil</span>
         </div>
       </div>
-
-      <!-- Direita: card do formulário -->
       <div class="post-nl-right">
         <div class="post-nl-card">
           <h4 class="post-nl-card-title">Receba o conteúdo da Ongrowing</h4>
           <p class="post-nl-card-sub">Direto no seu e-mail, sem spam e sem frequência forçada.</p>
-
           <form class="post-nl-form" id="nl-form-post">
-            <input type="text"  id="nl-name-post"  placeholder="Seu nome"         autocomplete="name"  aria-label="Nome">
+            <input type="text"  id="nl-name-post"  placeholder="Seu nome"          autocomplete="name"  aria-label="Nome">
             <input type="email" id="nl-email-post" placeholder="Seu melhor e-mail" autocomplete="email" aria-label="E-mail" required>
             <button class="btn btn-mint" type="submit">
               Quero receber
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </button>
           </form>
-
           <p class="nl-msg" id="nl-msg-post"></p>
-
           <div class="post-nl-trust">
             <span class="post-nl-trust-item">
               <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -618,7 +457,6 @@ function formatDate(dateStr: string) {
           </div>
         </div>
       </div>
-
     </div>
   </section>
 

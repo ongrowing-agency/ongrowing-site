@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Topbar from '../../components/Topbar.astro';
-import { getPosts, urlFor } from '../../lib/sanity';
+import { getPosts, urlFor, getRecentPosts } from '../../lib/sanity';
 
 const page = Number(Astro.url.searchParams.get('p') || 1);
 const pageSize = 8;
@@ -14,6 +14,11 @@ try {
 } catch {
   // use static fallback
 }
+
+let recentPosts: any[] = [];
+try {
+  recentPosts = await getRecentPosts(4);
+} catch {}
 
 const staticPosts = [
   { slug: { current: 'roas-medio-mente' }, title: 'O ROAS médio mente. O que olhar antes de mudar uma campanha.', excerpt: 'A média esconde o que realmente está acontecendo dentro de uma conta de tráfego. Como ler os dados por janela, canal e funil — e por que isso muda completamente as decisões de otimização.', category: 'Diagnóstico & dados', publishedAt: '2026-05-12', readTime: 8, variant: 1, featured: true },
@@ -156,7 +161,7 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       .cat-list { list-style: none; display: flex; flex-direction: column; }
       .cat-list li { border-bottom: 1px solid var(--border); }
       .cat-list li:last-child { border-bottom: none; }
-      .cat-list a { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-3) 0; font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--fg); text-decoration: none; transition: color var(--dur-fast) var(--ease-out); }
+      .cat-list a { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-3) 0; font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--fg); text-decoration: none; transition: color var(--dur-fast) var(--ease-out); cursor: pointer; }
       .cat-list a:hover { color: var(--accent-strong); }
       .cat-list a:hover .cat-count { background: var(--accent); color: var(--og-deep-800); }
       .cat-name { display: inline-flex; align-items: center; gap: var(--sp-3); }
@@ -168,24 +173,12 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       .recent-post .title { font-family: var(--font-display); font-size: 13.5px; font-weight: 600; color: var(--fg); line-height: 1.4; letter-spacing: -.1px; transition: color var(--dur-fast) var(--ease-out); }
       .recent-post:hover .title { color: var(--accent-strong); }
 
-      /* ── NEWSLETTER SIDEBAR ── */
       .sidebar-cta { background: var(--og-deep-800); color: #fff; border: none; }
       .sidebar-cta h4 { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #fff; margin-bottom: var(--sp-2); line-height: 1.25; letter-spacing: -.2px; }
       .sidebar-cta h4 em { font-style: italic; color: var(--accent); }
       .sidebar-cta > p { font-family: var(--font-text); font-size: 13px; color: rgba(255,255,255,.5); line-height: 1.55; margin-bottom: var(--sp-5); }
       .nl-sidebar-form { display: flex; flex-direction: column; gap: 8px; }
-      .nl-sidebar-input {
-        width: 100%;
-        background: rgba(255,255,255,.05);
-        border: 1px solid rgba(255,255,255,.12);
-        border-radius: var(--r-md);
-        padding: 11px 14px;
-        font-family: var(--font-text);
-        font-size: 14px;
-        color: #fff;
-        outline: none;
-        transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
-      }
+      .nl-sidebar-input { width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: var(--r-md); padding: 11px 14px; font-family: var(--font-text); font-size: 14px; color: #fff; outline: none; transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out); }
       .nl-sidebar-input::placeholder { color: rgba(255,255,255,.3); }
       .nl-sidebar-input:focus { border-color: rgba(121,217,199,.45); background: rgba(255,255,255,.07); box-shadow: none; }
       .nl-sidebar-btn { width: 100%; padding: 12px 16px; font-size: 13px; margin-top: 4px; justify-content: center; display: flex; align-items: center; gap: 8px; }
@@ -299,59 +292,32 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       <div class="sidebar-block">
         <div class="sidebar-title">Categorias</div>
         <ul class="cat-list">
-          <li><a href="/blog/?categoria=trafego-pago"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Tráfego pago</span><span class="cat-count">18</span></a></li>
-          <li><a href="/blog/?categoria=automacao-ia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg> Automação & IA</span><span class="cat-count">12</span></a></li>
-          <li><a href="/blog/?categoria=email-marketing"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> E-mail marketing</span><span class="cat-count">9</span></a></li>
-          <li><a href="/blog/?categoria=estrategia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"/></svg> Estratégia & funil</span><span class="cat-count">14</span></a></li>
-          <li><a href="/blog/?categoria=cases"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Cases & bastidores</span><span class="cat-count">7</span></a></li>
-          <li><a href="/blog/?categoria=diagnostico"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V9"/><path d="M11 16v-5"/><path d="M15 16v-7"/><path d="M19 16v-3"/></svg> Diagnóstico & dados</span><span class="cat-count">11</span></a></li>
+          <li><a href="#" data-cat="trafego-pago"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Tráfego pago</span><span class="cat-count">18</span></a></li>
+          <li><a href="#" data-cat="automacao-ia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg> Automação & IA</span><span class="cat-count">12</span></a></li>
+          <li><a href="#" data-cat="email-marketing"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> E-mail marketing</span><span class="cat-count">9</span></a></li>
+          <li><a href="#" data-cat="estrategia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"/></svg> Estratégia & funil</span><span class="cat-count">14</span></a></li>
+          <li><a href="#" data-cat="cases"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Cases & bastidores</span><span class="cat-count">7</span></a></li>
+          <li><a href="#" data-cat="diagnostico"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V9"/><path d="M11 16v-5"/><path d="M15 16v-7"/><path d="M19 16v-3"/></svg> Diagnóstico & dados</span><span class="cat-count">11</span></a></li>
         </ul>
       </div>
 
       <div class="sidebar-block">
         <div class="sidebar-title">Mais lidos</div>
-        <a href="/blog/estrutura-meta-ads/" class="recent-post">
-          <span class="meta">Tráfego pago · 14 min</span>
-          <span class="title">A estrutura de conta Meta que dura 2 anos sem refazer</span>
-        </a>
-        <a href="/blog/roas-40-login-informatica/" class="recent-post">
-          <span class="meta">Cases · 11 min</span>
-          <span class="title">ROAS 40: o que aconteceu na operação da Login Informática</span>
-        </a>
-        <a href="/blog/planilha-diagnostico/" class="recent-post">
-          <span class="meta">Diagnóstico · 9 min</span>
-          <span class="title">A planilha de diagnóstico que mandamos no primeiro call</span>
-        </a>
-        <a href="/blog/lista-nao-gera-receita/" class="recent-post">
-          <span class="meta">E-mail · 8 min</span>
-          <span class="title">Por que sua lista não gera receita (e o que fazer)</span>
-        </a>
+        {recentPosts.map((p: any) => (
+          <a href={`/blog/${p.slug?.current || p.slug}/`} class="recent-post">
+            <span class="meta">{p.categories?.[0] || ''}{p.readTime ? ` · ${p.readTime} min` : ''}</span>
+            <span class="title">{p.title}</span>
+          </a>
+        ))}
       </div>
 
-      <!-- Newsletter signup — lista newsletter-br -->
       <div class="sidebar-block sidebar-cta" id="newsletter">
         <div class="sidebar-title" style="color: rgba(121,217,199,.7);">Newsletter</div>
         <h4>Quer ficar por dentro do que <em>realmente importa?</em></h4>
         <p>Posts novos, cursos, cases e atualizações de mercado — só quando vale a pena abrir.</p>
         <form class="nl-sidebar-form" id="blog-nl-form" novalidate>
-          <input
-            type="text"
-            name="name"
-            class="nl-sidebar-input"
-            placeholder="Seu nome"
-            autocomplete="name"
-            aria-label="Nome"
-            required
-          >
-          <input
-            type="email"
-            name="email"
-            class="nl-sidebar-input"
-            placeholder="Seu melhor e-mail"
-            autocomplete="email"
-            aria-label="E-mail"
-            required
-          >
+          <input type="text" name="name" class="nl-sidebar-input" placeholder="Seu nome" autocomplete="name" aria-label="Nome" required>
+          <input type="email" name="email" class="nl-sidebar-input" placeholder="Seu melhor e-mail" autocomplete="email" aria-label="E-mail" required>
           <button type="submit" class="btn btn-mint nl-sidebar-btn">
             <span class="btn-label">Quero ficar por dentro!</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
@@ -366,16 +332,37 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
   <Fragment slot="scripts">
     <script>
       // ── Category filter ──
+      function applyFilter(filter: string) {
+        document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+        const activePill = [...document.querySelectorAll('.pill')]
+          .find(p => (p as HTMLElement).dataset.filter === filter);
+        if (activePill) activePill.classList.add('active');
+        document.querySelectorAll('#post-grid .post-card').forEach((card: any) => {
+          const cat = card.dataset.category || '';
+          const show = filter === 'Todos' || cat.toLowerCase().includes(filter.toLowerCase());
+          card.style.display = show ? '' : 'none';
+        });
+      }
+
       document.querySelectorAll('.pill').forEach(p => {
-        p.addEventListener('click', () => {
-          document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
-          p.classList.add('active');
-          const filter = (p as HTMLElement).dataset.filter;
-          document.querySelectorAll('#post-grid .post-card').forEach((card: any) => {
-            const cat = card.dataset.category || '';
-            const show = filter === 'Todos' || cat.toLowerCase().includes(filter?.toLowerCase() || '');
-            card.style.display = show ? '' : 'none';
-          });
+        p.addEventListener('click', () => applyFilter((p as HTMLElement).dataset.filter || 'Todos'));
+      });
+
+      const catMap: Record<string, string> = {
+        'trafego-pago': 'Tráfego pago',
+        'automacao-ia': 'Automação & IA',
+        'email-marketing': 'E-mail',
+        'estrategia': 'Estratégia',
+        'cases': 'Cases',
+        'diagnostico': 'Todos',
+      };
+
+      document.querySelectorAll('.cat-list a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const cat = (link as HTMLElement).dataset.cat || '';
+          applyFilter(catMap[cat] || 'Todos');
+          document.querySelector('.blog-body')?.scrollIntoView({ behavior: 'smooth' });
         });
       });
 
@@ -385,9 +372,9 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       if (form) {
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const fd   = new FormData(form);
-          const btn  = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-          const lbl  = btn.querySelector('.btn-label') as HTMLElement;
+          const fd  = new FormData(form);
+          const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+          const lbl = btn.querySelector('.btn-label') as HTMLElement;
           const orig = lbl.textContent;
           lbl.textContent = 'Enviando…';
           btn.disabled = true;
