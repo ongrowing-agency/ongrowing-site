@@ -99,6 +99,9 @@
   }
 
   .cursos-overlay-form { display: block; }
+  .cursos-overlay-form[hidden],
+  .cursos-overlay-success[hidden],
+  .cursos-overlay-msg[hidden] { display: none; }
 
   .cursos-overlay-label {
     display: block;
@@ -208,6 +211,8 @@
 </style>
 
 <script>
+  type State = 'idle' | 'loading' | 'success' | 'error';
+
   const form = document.getElementById('cursos-overlay-form') as HTMLFormElement | null;
   const input = document.getElementById('cursos-overlay-email') as HTMLInputElement | null;
   const submit = document.getElementById('cursos-overlay-submit') as HTMLButtonElement | null;
@@ -215,22 +220,38 @@
   const successEl = document.getElementById('cursos-overlay-success') as HTMLElement | null;
 
   if (form && input && submit && errorEl && successEl) {
+    let state: State = 'idle';
+
+    const setState = (next: State, message = '') => {
+      state = next;
+      const loading = next === 'loading';
+      const success = next === 'success';
+      const error = next === 'error';
+
+      form.classList.toggle('is-loading', loading);
+      submit.disabled = loading;
+      input.disabled = loading;
+
+      form.hidden = success;
+      successEl.hidden = !success;
+      errorEl.hidden = !error;
+      errorEl.textContent = error ? message : '';
+    };
+
+    setState('idle');
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (state === 'loading') return;
+
       const email = input.value.trim();
 
-      errorEl.hidden = true;
-      errorEl.textContent = '';
-
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errorEl.textContent = 'Informe um e-mail válido.';
-        errorEl.hidden = false;
+        setState('error', 'Informe um e-mail válido.');
         return;
       }
 
-      form.classList.add('is-loading');
-      submit.disabled = true;
-      input.disabled = true;
+      setState('loading');
 
       try {
         const res = await fetch('/api/subscribe', {
@@ -239,22 +260,13 @@
           body: JSON.stringify({ email, list_ids: [4] }),
         });
 
-        if (res.ok) {
-          form.hidden = true;
-          successEl.hidden = false;
+        if (res.ok === true) {
+          setState('success');
         } else {
-          errorEl.textContent = 'Não foi possível concluir o cadastro. Tente novamente.';
-          errorEl.hidden = false;
-          form.classList.remove('is-loading');
-          submit.disabled = false;
-          input.disabled = false;
+          setState('error', 'Erro ao cadastrar. Tente novamente.');
         }
       } catch {
-        errorEl.textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
-        errorEl.hidden = false;
-        form.classList.remove('is-loading');
-        submit.disabled = false;
-        input.disabled = false;
+        setState('error', 'Erro ao cadastrar. Tente novamente.');
       }
     });
   }
