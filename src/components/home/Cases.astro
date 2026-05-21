@@ -1,20 +1,22 @@
 ---
 const cases = [
   {
-    variant: '',
+    variant: 'dark',
     nicho: 'Painéis de madeira · E-commerce B2B/B2C',
     result: '3×',
     resultLabel: 'Crescimento de galpão em 3 anos de parceria contínua',
     name: 'Masterpinus',
+    logo: '/assets/clients/masterpinus.png',
     desc: 'ROAS consistente e crescimento operacional real — a empresa mudou de galpão três vezes por volume de pedidos desde o início da parceria.',
     duration: '3 anos de parceria ativa',
   },
   {
-    variant: 'dark',
+    variant: 'mid',
     nicho: 'Livraria · E-commerce',
     result: 'R$1M',
     resultLabel: 'Faturado em 6 meses de consultoria',
     name: 'Livraria Cordeiro',
+    logo: '/assets/clients/cordeiro.png',
     desc: 'Arquitetura de aquisição montada do zero — tráfego pago e automações integradas levaram a livraria ao primeiro milhão em menos de um semestre.',
     duration: '6 meses · resultado documentado',
   },
@@ -24,26 +26,29 @@ const cases = [
     result: '+15%',
     resultLabel: 'Aumento de faturamento em 2 meses',
     name: 'Braslimpo',
+    logo: '/assets/clients/braslimpo.png',
     desc: 'Reestruturação dos canais de aquisição e automação de relacionamento com cliente resultaram em crescimento mensurável em menos de 60 dias.',
     duration: '2 meses · resultado mensurável',
   },
   {
-    variant: '',
+    variant: 'dark',
     nicho: 'Eletrônicos · Lançamento nacional',
     result: 'R$10M',
     resultLabel: 'Em vendas na primeira semana de lançamento',
     name: 'Motorola',
+    logo: '/assets/clients/motorola.png',
     desc: 'Operação de mídia paga para o lançamento das babás eletrônicas Motorola no Brasil — dez milhões de reais em vendas nos primeiros sete dias.',
     duration: 'Lançamento nacional · 7 dias',
   },
   {
     variant: 'dark',
-    nicho: 'Pet store · E-commerce · EUA',
-    result: 'ROAS 14',
-    resultLabel: 'Em 6 meses num mercado altamente competitivo',
-    name: 'New York Pets',
-    desc: 'Performance sólida e sustentada em um dos mercados mais agressivos para e-commerce — pet store nos EUA com concorrência intensa e margens pressionadas.',
-    duration: '6 meses · mercado americano',
+    nicho: 'Alimentos · E-commerce B2C',
+    result: '+50%',
+    resultLabel: 'Aumento na taxa de conversão com a nova loja',
+    name: 'Ibá Brasil',
+    logo: '/assets/clients/iba-brasil.png',
+    desc: 'E-commerce pioneiro em produtos alimentícios em bisnaga no Brasil. A migração para a nova loja, com tráfego estruturado, dobrou a conversão em 1 ano de parceria.',
+    duration: '1 ano · crescimento documentado',
   },
   {
     variant: 'mid',
@@ -51,6 +56,7 @@ const cases = [
     result: 'ROAS 40',
     resultLabel: 'O maior ROAS documentado no portfólio da Ongrowing',
     name: 'Login Informática',
+    logo: '/assets/clients/login-informatica.png',
     desc: '12 meses de operação estruturada entregaram o melhor retorno sobre investimento em mídia já documentado no portfólio — ROAS 40 consistente.',
     duration: '12 meses · recorde de portfólio',
   },
@@ -70,7 +76,7 @@ const cases = [
         <span class="case-nicho">{c.nicho}</span>
         <div class="case-result">{c.result}</div>
         <p class="case-result-label">{c.resultLabel}</p>
-        <h3 class="case-name">{c.name}</h3>
+        <img src={c.logo} alt={c.name} style="max-height: 70px; max-width: 200px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.85; margin-bottom: var(--sp-3);" />
         <p class="case-desc">{c.desc}</p>
         <span class="case-duration">{c.duration}</span>
       </div>
