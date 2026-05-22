@@ -1,18 +1,48 @@
 ---
+const pillars = [
+  { num: '01', label: 'Diagnóstico' },
+  { num: '02', label: 'Tráfego pago' },
+  { num: '03', label: 'Automações' },
+  { num: '04', label: 'Agente IA' },
+  { num: '05', label: 'E-mail + ERP' },
+];
 ---
 <section id="hero">
-  <img src="/assets/mark-light.png" alt="" class="hero-mark" aria-hidden="true" fetchpriority="high" loading="eager">
-  <div class="hero-eyebrow">Arquitetura de Aquisição Digital</div>
-  <h1>Mais tráfego não resolve operação <em>quebrada.</em></h1>
-  <p class="hero-sub">A Ongrowing monta e opera a arquitetura completa de aquisição do seu e-commerce — do diagnóstico até o resultado mensurável. Tráfego pago, automações, IA e e-mail trabalhando juntos.</p>
-  <div class="hero-cta-wrap">
-    <p class="hero-cta-label">Descubra onde está o gargalo da sua operação</p>
-    <a href="#diagnostico" class="hero-cta-btn">
-      Dê o primeiro passo
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <line x1="5" y1="12" x2="19" y2="12"/>
-        <polyline points="12 5 19 12 12 19"/>
-      </svg>
-    </a>
+  <div class="hero-grid" aria-hidden="true"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Arquitetura de Aquisição Digital</div>
+    <h1>Mais tráfego não resolve operação <em>quebrada.</em></h1>
+    <p class="hero-sub">A Ongrowing monta e opera a arquitetura completa de aquisição do seu e-commerce — do diagnóstico até o resultado mensurável. Tráfego pago, automações, IA e e-mail trabalhando juntos.</p>
+    <div class="hero-cta-wrap">
+      <p class="hero-cta-label">Descubra onde está o gargalo da sua operação</p>
+      <a href="#diagnostico" class="hero-cta-btn">
+        Dê o primeiro passo
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </div>
   </div>
+
+  <aside class="hero-arch" aria-hidden="true">
+    <div class="arch-label">
+      <span class="arch-label-num">01 → 05</span>
+      <span class="arch-label-text">Arquitetura conectada</span>
+    </div>
+    <div class="arch-stack">
+      {pillars.map((p, i) => (
+        <div class="arch-node" style={`--delay: ${720 + i * 110}ms`}>
+          <span class="arch-node-num">{p.num}</span>
+          <span class="arch-node-label">{p.label}</span>
+          <span class="arch-node-dot" aria-hidden="true"></span>
+        </div>
+      ))}
+    </div>
+    <div class="arch-foot">
+      <span class="arch-foot-line"></span>
+      <span class="arch-foot-text">um sistema só</span>
+    </div>
+  </aside>
 </section>

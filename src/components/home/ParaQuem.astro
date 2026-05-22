@@ -1,4 +1,18 @@
 ---
+const ideal = [
+  'Fatura $80k+ por mês e quer escalar com estrutura, não com sorte',
+  'Já tem produto validado e operação rodando. Falta a arquitetura de aquisição',
+  'Quem decide senta na mesa: o sócio majoritário toca a conversa',
+  'Tem budget de mídia real, a partir de $3k/mês. Sem isso não há o que otimizar',
+  'Participa do jogo: aprova criativo, entrega dado, executa o combinado',
+];
+const fora = [
+  'Quer pacote fechado e resultado garantido antes de qualquer diagnóstico',
+  'Pensa em terceirizar 100% e sumir. Marketing não funciona assim',
+  'Não tem budget de mídia e quer crescer sem investir',
+  'Culpa a agência quando o número não vem',
+  'Some na hora de aprovar, responder ou executar',
+];
 ---
 <section id="para-quem">
   <div class="section-header reveal">
@@ -8,50 +22,43 @@
       <p class="lead">E isso é intencional. Trabalhamos melhor com quem busca clareza — não com quem caça atalho.</p>
     </div>
   </div>
-  <div class="icp-grid reveal">
-    <div class="icp-block">
-      <span class="icp-tag green"><svg class="icon"><use href="#i-check"/></svg> Perfil ideal</span>
-      <h3>Quem a gente atende</h3>
-      <ul class="icp-list">
-        <li><svg class="icon"><use href="#i-check"/></svg> Dono de e-commerce com operação rodando e produto validado</li>
-        <li><svg class="icon"><use href="#i-check"/></svg> Negócio físico consolidado migrando para o digital com seriedade</li>
-        <li><svg class="icon"><use href="#i-check"/></svg> Faturamento mínimo de $80–100k/mês — tem o que otimizar</li>
-        <li><svg class="icon"><use href="#i-check"/></svg> Decisão tomada pelo sócio majoritário, sem comitê</li>
-        <li><svg class="icon"><use href="#i-check"/></svg> Quer sistema e parceria, não terceirizar a culpa pelo resultado</li>
+  <div class="pq-grid reveal">
+    <article class="pq-card pq-good">
+      <header class="pq-card-head">
+        <div class="pq-icon-badge">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h3 class="pq-tag">Perfil ideal</h3>
+      </header>
+      <ul class="pq-list">
+        {ideal.map((item) => (
+          <li class="pq-item">
+            <span class="pq-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span>{item}</span>
+          </li>
+        ))}
       </ul>
-    </div>
-    <div class="icp-block bad">
-      <span class="icp-tag red"><svg class="icon"><use href="#i-x"/></svg> Fora do perfil</span>
-      <h3>Quem não é nosso cliente</h3>
-      <ul class="icp-list">
-        <li><svg class="icon"><use href="#i-x"/></svg> Negócio sem budget real de mídia — mínimo $3.000/mês</li>
-        <li><svg class="icon"><use href="#i-x"/></svg> Quem quer resultado sem participar da operação</li>
-        <li><svg class="icon"><use href="#i-x"/></svg> Quem troca de agência todo mês esperando milagre</li>
-        <li><svg class="icon"><use href="#i-x"/></svg> E-commerce de eletrônicos de consumo ou pet store com margens ruins</li>
-        <li><svg class="icon"><use href="#i-x"/></svg> Quem precisa de garantia de ROAS antes de mostrar um dado sequer</li>
+    </article>
+
+    <article class="pq-card pq-bad">
+      <header class="pq-card-head">
+        <div class="pq-icon-badge">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </div>
+        <h3 class="pq-tag">Fora do perfil</h3>
+      </header>
+      <ul class="pq-list">
+        {fora.map((item) => (
+          <li class="pq-item">
+            <span class="pq-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </span>
+            <span>{item}</span>
+          </li>
+        ))}
       </ul>
-    </div>
-  </div>
-  <div class="dd-grid reveal">
-    <div class="dd-block dores">
-      <h4><svg class="icon"><use href="#i-x"/></svg> Dores que reconhecemos</h4>
-      <ul class="dd-list">
-        <li><svg class="icon"><use href="#i-x"/></svg>Campanhas rodando no improviso, sem dado, sem estrutura definida</li>
-        <li><svg class="icon"><use href="#i-x"/></svg>ROAS instável — ótimo um mês, horrível no seguinte</li>
-        <li><svg class="icon"><use href="#i-x"/></svg>Dependência total de um único canal de aquisição</li>
-        <li><svg class="icon"><use href="#i-x"/></svg>Agência que entrega relatório bonito mas não move o faturamento</li>
-        <li><svg class="icon"><use href="#i-x"/></svg>Carrinho abandonado sem nenhuma automação de recuperação ativa</li>
-      </ul>
-    </div>
-    <div class="dd-block desejos">
-      <h4><svg class="icon"><use href="#i-check"/></svg> O que o cliente quer de verdade</h4>
-      <ul class="dd-list">
-        <li><svg class="icon"><use href="#i-check"/></svg>Previsibilidade — saber o que vai entrar no mês que vem</li>
-        <li><svg class="icon"><use href="#i-check"/></svg>Escalar sem depender só de indicação e sorte</li>
-        <li><svg class="icon"><use href="#i-check"/></svg>Canais integrados trabalhando juntos, não em silos</li>
-        <li><svg class="icon"><use href="#i-check"/></svg>Um parceiro que conhece a operação, não um fornecedor qualquer</li>
-        <li><svg class="icon"><use href="#i-check"/></svg>Resultado mensurável com relatório que faz sentido</li>
-      </ul>
-    </div>
+    </article>
   </div>
 </section>
