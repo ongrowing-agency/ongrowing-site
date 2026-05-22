@@ -15,11 +15,11 @@ const clients = [
   <div class="carousel-wrap">
     <div class="carousel-track" id="track">
       {clients.map(c => (
-          <div class="client-logo">
-        <div class="logo-inner">
-          <img src={c.logo} alt={c.name} style="max-height: 80px; max-width: 220px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.7;" />
+        <div class="client-logo">
+          <div class="logo-inner">
+            <img src={c.logo} alt={c.name} class="client-logo-img" />
+          </div>
         </div>
-      </div>
       ))}
     </div>
   </div>

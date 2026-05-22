@@ -2,6 +2,7 @@
 const items = [
   {
     icon: 'i-compass',
+    short: 'Diagnóstico',
     label: 'Diagnóstico completo',
     before: 'Operação rodando no escuro, sem clareza de onde estão os gargalos e onde o dinheiro está sendo desperdiçado.',
     title: 'Mapeamento de toda a operação de aquisição: canais, funil, margem, ticket médio, pontos de vazamento.',
@@ -9,6 +10,7 @@ const items = [
   },
   {
     icon: 'i-megaphone',
+    short: 'Tráfego pago',
     label: 'Tráfego pago (Meta + Google)',
     before: 'Tráfego pago rodando sem estratégia, com criativos genéricos e orçamento distribuído sem critério.',
     title: 'Campanhas estruturadas com funil completo, criativos com ângulo certo e otimização contínua baseada em dado.',
@@ -16,6 +18,7 @@ const items = [
   },
   {
     icon: 'i-workflow',
+    short: 'Automações',
     label: 'Automações de marketing',
     before: 'Leads e clientes sem nenhuma nutrição automática depois do primeiro contato ou da primeira compra.',
     title: 'Fluxos automáticos que trabalham enquanto você dorme — boas-vindas, reengajamento, pós-venda, upsell.',
@@ -23,6 +26,7 @@ const items = [
   },
   {
     icon: 'i-bot',
+    short: 'IA + Carrinho',
     label: 'Agente IA + Recuperação de carrinho',
     before: 'Atendimento manual e lento, e carrinho abandonado que nunca recebe nenhum contato ativo de recuperação.',
     title: 'Agente de atendimento com IA que qualifica e responde. Automação ativa de recuperação de carrinho com sequência de mensagens.',
@@ -30,6 +34,7 @@ const items = [
   },
   {
     icon: 'i-mail',
+    short: 'E-mail + ERP',
     label: 'E-mail marketing + Integrações ERP',
     before: 'Base de e-mails parada, sem segmentação, sem cadência — ou pior, uma base que simplesmente não existe.',
     title: 'Estratégia de e-mail com segmentação, cadências e automações. Integração com ERP alimentando toda a operação com dados reais.',
@@ -41,14 +46,36 @@ const items = [
   <div class="section-header reveal">
     <span class="section-num">04 · O que entregamos</span>
     <div class="section-title-group">
-      <h2>Cinco pilares. Um sistema só.</h2>
+      <h2>Cinco pilares. <em>Um sistema só.</em></h2>
       <p class="lead">Cada pilar da Arquitetura de Aquisição ataca um ponto específico da operação. Nada solto — tudo integrado.</p>
     </div>
   </div>
+
+  <!-- System map: a single architecture made of 5 connected nodes -->
+  <div class="sysmap reveal" aria-hidden="true">
+    <div class="sysmap-frame">
+      <span class="sysmap-frame-tag">Arquitetura de Aquisição</span>
+      <span class="sysmap-frame-meta">5 módulos · 1 sistema</span>
+    </div>
+    <div class="sysmap-track">
+      {items.map((item, i) => (
+        <div class="sysmap-node" style={`--i: ${i}`}>
+          <span class="sysmap-num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="sysmap-icon">
+            <svg class="icon"><use href={`#${item.icon}`}/></svg>
+          </div>
+          <span class="sysmap-label">{item.short}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Detailed pillars: same architecture, opened up -->
   <div class="transform-flow">
-    {items.map(item => (
-      <div class="transform-item reveal">
+    {items.map((item, i) => (
+      <div class="transform-item reveal" id={`pilar-${i + 1}`}>
         <div class="t-icon-col">
+          <span class="t-num">{String(i + 1).padStart(2, '0')}</span>
           <div class="icon-wrap"><svg class="icon"><use href={`#${item.icon}`}/></svg></div>
         </div>
         <div class="t-before">
