@@ -22,3 +22,8 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Claude Code (artefatos locais)
+.agents/
+.claude/
+skills-lock.json
