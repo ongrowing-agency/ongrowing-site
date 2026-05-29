@@ -112,6 +112,10 @@ if (post?.body && !data.bodyHtml) {
 
 const toc = data.toc || derivedToc;
 
+const ogImage = post?.cover?.asset
+  ? urlFor(post.cover).width(1200).height(630).fit('crop').format('jpg').url()
+  : new URL('/assets/mark-dark.png', Astro.site).toString();
+
 function formatDate(dateStr: string) {
   try {
     return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -121,6 +125,9 @@ function formatDate(dateStr: string) {
 <BaseLayout
   title={`${data.title} — Ongrowing Blog`}
   description={data.excerpt || ''}
+  ogImage={ogImage}
+  ogImageWidth={1200}
+  ogImageHeight={630}
 >
   <Fragment slot="head">
     <style is:global>
