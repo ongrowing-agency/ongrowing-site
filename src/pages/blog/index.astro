@@ -50,12 +50,18 @@ const filteredPosts = activeCategory
     })
   : sourcePosts;
 
-const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
+const POSTS_PER_PAGE = 8;
+const totalPages = filteredPosts.length <= 9
+  ? 1
+  : 1 + Math.ceil((filteredPosts.length - 9) / POSTS_PER_PAGE);
 const currentPage = Math.min(Math.max(1, page), totalPages);
-const startIdx = (currentPage - 1) * pageSize;
-const pagePosts = filteredPosts.slice(startIdx, startIdx + pageSize);
-const featuredPost = pagePosts[0];
-const gridPosts = pagePosts.slice(1);
+const featuredPost = currentPage === 1 ? filteredPosts[0] : null;
+const gridPosts = currentPage === 1
+  ? filteredPosts.slice(1, 9)
+  : filteredPosts.slice(
+      9 + (currentPage - 2) * POSTS_PER_PAGE,
+      9 + (currentPage - 1) * POSTS_PER_PAGE,
+    );
 
 const categoryCounts: Record<string, number> = {};
 for (const p of sourcePosts) {
