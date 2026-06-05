@@ -6,11 +6,9 @@ import { getPosts, urlFor, getRecentPosts } from '../../lib/sanity';
 const page = Number(Astro.url.searchParams.get('p') || 1);
 const pageSize = 8;
 
-let posts: any[] = [];
-let total = 0;
+let allPosts: any[] = [];
 try {
-  posts = await getPosts(page, pageSize);
-  total = posts.length;
+  allPosts = await getPosts();
 } catch {
   // use static fallback
 }
@@ -32,9 +30,19 @@ const staticPosts = [
   { slug: { current: 'recuperacao-de-carrinho' }, title: 'Recuperação de carrinho: a sequência de 3 mensagens que basta', excerpt: 'Cinco, sete, dez mensagens — não é volume que recupera, é timing e ângulo. A estrutura mínima que vimos performar melhor que os fluxos longos.', category: 'Automação & IA', publishedAt: '2026-03-25', readTime: 7, variant: 8 },
 ];
 
-const displayPosts = posts.length > 0 ? posts : staticPosts;
-const featuredPost = displayPosts.find((p: any) => p.featured) || displayPosts[0];
-const gridPosts = displayPosts.filter((p: any) => p !== featuredPost);
+const sourcePosts = allPosts.length > 0 ? allPosts : staticPosts;
+const totalPages = Math.max(1, Math.ceil(sourcePosts.length / pageSize));
+const currentPage = Math.min(Math.max(1, page), totalPages);
+const startIdx = (currentPage - 1) * pageSize;
+const pagePosts = sourcePosts.slice(startIdx, startIdx + pageSize);
+const featuredPost = pagePosts.find((p: any) => p.featured) || pagePosts[0];
+const gridPosts = pagePosts.filter((p: any) => p !== featuredPost);
+
+const categoryCounts: Record<string, number> = {};
+for (const p of sourcePosts) {
+  const cats = Array.isArray(p.categories) ? p.categories : (p.category ? [p.category] : []);
+  for (const c of cats) categoryCounts[c] = (categoryCounts[c] || 0) + 1;
+}
 
 const categories = ['Todos', 'Tráfego pago', 'Automação & IA', 'E-mail', 'Estratégia', 'Cases'];
 
@@ -275,16 +283,33 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       </div>
 
       <div class="pagination">
-        <button class="pag-btn with-icon" disabled={page === 1} style={page === 1 ? 'opacity:.4;cursor:not-allowed;' : ''}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-          Anterior
-        </button>
-        <button class="pag-btn active">{page}</button>
-        <button class="pag-btn">{page + 1}</button>
-        <button class="pag-btn with-icon">
-          Próxima
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </button>
+        {currentPage > 1 ? (
+          <a class="pag-btn with-icon" href={`/blog/?p=${currentPage - 1}`}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+            Anterior
+          </a>
+        ) : (
+          <span class="pag-btn with-icon" style="opacity:.4;cursor:not-allowed;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+            Anterior
+          </span>
+        )}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+          n === currentPage
+            ? <span class="pag-btn active">{n}</span>
+            : <a class="pag-btn" href={`/blog/?p=${n}`}>{n}</a>
+        ))}
+        {currentPage < totalPages ? (
+          <a class="pag-btn with-icon" href={`/blog/?p=${currentPage + 1}`}>
+            Próxima
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        ) : (
+          <span class="pag-btn with-icon" style="opacity:.4;cursor:not-allowed;">
+            Próxima
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </span>
+        )}
       </div>
     </div>
 
@@ -292,12 +317,12 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       <div class="sidebar-block">
         <div class="sidebar-title">Categorias</div>
         <ul class="cat-list">
-          <li><a href="#" data-cat="trafego-pago"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Tráfego pago</span><span class="cat-count">18</span></a></li>
-          <li><a href="#" data-cat="automacao-ia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg> Automação & IA</span><span class="cat-count">12</span></a></li>
-          <li><a href="#" data-cat="email-marketing"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> E-mail marketing</span><span class="cat-count">9</span></a></li>
-          <li><a href="#" data-cat="estrategia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"/></svg> Estratégia & funil</span><span class="cat-count">14</span></a></li>
-          <li><a href="#" data-cat="cases"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Cases & bastidores</span><span class="cat-count">7</span></a></li>
-          <li><a href="#" data-cat="diagnostico"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V9"/><path d="M11 16v-5"/><path d="M15 16v-7"/><path d="M19 16v-3"/></svg> Diagnóstico & dados</span><span class="cat-count">11</span></a></li>
+          <li><a href="#" data-cat="trafego-pago"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Tráfego pago</span><span class="cat-count">{categoryCounts['Tráfego pago'] ?? 0}</span></a></li>
+          <li><a href="#" data-cat="automacao-ia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg> Automação & IA</span><span class="cat-count">{categoryCounts['Automação & IA'] ?? 0}</span></a></li>
+          <li><a href="#" data-cat="email-marketing"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> E-mail marketing</span><span class="cat-count">{categoryCounts['E-mail marketing'] ?? 0}</span></a></li>
+          <li><a href="#" data-cat="estrategia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"/></svg> Estratégia & funil</span><span class="cat-count">{categoryCounts['Estratégia & funil'] ?? 0}</span></a></li>
+          <li><a href="#" data-cat="cases"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Cases & bastidores</span><span class="cat-count">{categoryCounts['Cases & bastidores'] ?? 0}</span></a></li>
+          <li><a href="#" data-cat="diagnostico"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V9"/><path d="M11 16v-5"/><path d="M15 16v-7"/><path d="M19 16v-3"/></svg> Diagnóstico & dados</span><span class="cat-count">{categoryCounts['Diagnóstico & dados'] ?? 0}</span></a></li>
         </ul>
       </div>
 

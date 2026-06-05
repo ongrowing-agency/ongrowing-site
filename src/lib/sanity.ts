@@ -32,15 +32,14 @@ export async function getCourse(slug: string) {
   `, { slug });
 }
 
-export async function getPosts(page = 1, pageSize = 8) {
-  const start = (page - 1) * pageSize;
+export async function getPosts() {
   return sanityClient.fetch(`
-    *[_type == "post"] | order(publishedAt desc) [$start...$end] {
+    *[_type == "post"] | order(publishedAt desc) {
       _id, title, slug, excerpt, publishedAt, categories,
       cover { asset-> },
       "readTime": round(length(pt::text(body)) / 5 / 180)
     }
-  `, { start, end: start + pageSize });
+  `);
 }
 
 export async function getPost(slug: string) {
