@@ -46,7 +46,7 @@ const activeCategory = CATEGORY_MAP[catParam] || '';
 const filteredPosts = activeCategory
   ? sourcePosts.filter((p: any) => {
       const cats = Array.isArray(p.categories) ? p.categories : (p.category ? [p.category] : []);
-      return cats.some((c: string) => (c || '').toLowerCase().includes(activeCategory.toLowerCase()));
+      return cats.some((c: string) => c === activeCategory);
     })
   : sourcePosts;
 
