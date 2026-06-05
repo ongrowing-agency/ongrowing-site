@@ -115,6 +115,9 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       }
       @media (min-width: 768px) { .page-header { padding: var(--sp-16) var(--gutter) var(--sp-12); } }
       @media (min-width: 1024px) { .page-header { padding: var(--sp-20) var(--gutter) var(--sp-16); } }
+      .page-header.no-featured { padding-bottom: var(--sp-4); }
+      @media (min-width: 768px) { .page-header.no-featured { padding-bottom: var(--sp-5); } }
+      @media (min-width: 1024px) { .page-header.no-featured { padding-bottom: var(--sp-6); } }
       .page-header::before { content: ''; position: absolute; top: -100px; right: -100px; width: 520px; height: 520px; background: radial-gradient(circle, rgba(121,217,199,.08) 0%, transparent 65%); pointer-events: none; }
       .page-header::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, var(--accent), transparent 55%); opacity: .7; }
       .page-header-mark { position: absolute; bottom: -60px; right: -40px; width: 360px; opacity: .04; filter: invert(1); pointer-events: none; }
@@ -245,7 +248,7 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
 
   <Topbar />
 
-  <div class="page-header">
+  <div class={`page-header${featuredPost ? '' : ' no-featured'}`}>
     <img src="/assets/mark-light.png" alt="" class="page-header-mark" aria-hidden="true">
     <div class="breadcrumb">
       <a href="/">Ongrowing</a>
