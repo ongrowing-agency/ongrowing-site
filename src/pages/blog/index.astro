@@ -4,6 +4,7 @@ import Topbar from '../../components/Topbar.astro';
 import { getPosts, urlFor, getRecentPosts } from '../../lib/sanity';
 
 const page = Number(Astro.url.searchParams.get('p') || 1);
+const catParam = Astro.url.searchParams.get('cat') || '';
 const pageSize = 8;
 
 let allPosts: any[] = [];
@@ -31,12 +32,30 @@ const staticPosts = [
 ];
 
 const sourcePosts = allPosts.length > 0 ? allPosts : staticPosts;
-const totalPages = Math.max(1, Math.ceil(sourcePosts.length / pageSize));
+
+const CATEGORY_MAP: Record<string, string> = {
+  'trafego-pago':    'Tráfego pago',
+  'automacao-ia':    'Automação & IA',
+  'email-marketing': 'E-mail marketing',
+  'estrategia':      'Estratégia & funil',
+  'cases':           'Cases & bastidores',
+  'diagnostico':     'Diagnóstico & dados',
+};
+const activeCategory = CATEGORY_MAP[catParam] || '';
+
+const filteredPosts = activeCategory
+  ? sourcePosts.filter((p: any) => {
+      const cats = Array.isArray(p.categories) ? p.categories : (p.category ? [p.category] : []);
+      return cats.some((c: string) => (c || '').toLowerCase().includes(activeCategory.toLowerCase()));
+    })
+  : sourcePosts;
+
+const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
 const currentPage = Math.min(Math.max(1, page), totalPages);
 const startIdx = (currentPage - 1) * pageSize;
-const pagePosts = sourcePosts.slice(startIdx, startIdx + pageSize);
-const featuredPost = pagePosts.find((p: any) => p.featured) || pagePosts[0];
-const gridPosts = pagePosts.filter((p: any) => p !== featuredPost);
+const pagePosts = filteredPosts.slice(startIdx, startIdx + pageSize);
+const featuredPost = pagePosts[0];
+const gridPosts = pagePosts.slice(1);
 
 const categoryCounts: Record<string, number> = {};
 for (const p of sourcePosts) {
@@ -44,7 +63,23 @@ for (const p of sourcePosts) {
   for (const c of cats) categoryCounts[c] = (categoryCounts[c] || 0) + 1;
 }
 
-const categories = ['Todos', 'Tráfego pago', 'Automação & IA', 'E-mail', 'Estratégia', 'Cases'];
+function pageHref(n: number) {
+  const params = new URLSearchParams();
+  if (catParam) params.set('cat', catParam);
+  if (n > 1) params.set('p', String(n));
+  const qs = params.toString();
+  return qs ? `/blog/?${qs}` : '/blog/';
+}
+function catHref(slug: string) { return slug ? `/blog/?cat=${slug}` : '/blog/'; }
+
+const PILLS: Array<{ label: string; slug: string }> = [
+  { label: 'Todos',          slug: '' },
+  { label: 'Tráfego pago',   slug: 'trafego-pago' },
+  { label: 'Automação & IA', slug: 'automacao-ia' },
+  { label: 'E-mail',         slug: 'email-marketing' },
+  { label: 'Estratégia',     slug: 'estrategia' },
+  { label: 'Cases',          slug: 'cases' },
+];
 
 function formatDate(dateStr: string) {
   try {
@@ -216,40 +251,42 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
   </div>
 
   <!-- Featured post -->
-  <div class="hero-post-wrap">
-    <a href={`/blog/${getSlug(featuredPost)}/`} class="hero-post">
-      <div class={`hero-post-img${featuredCover ? ' has-cover' : ''}`}>
-        {featuredCover && <img class="cover-img" src={featuredCover} alt={featuredPost.title} loading="eager" />}
-        <div class="badge">Em destaque</div>
-        {!featuredCover && (
-          <div class="glyph">
-            <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-          </div>
-        )}
-      </div>
-      <div class="hero-post-content">
-        <span class="post-category">{getCategory(featuredPost)}</span>
-        <h2>{featuredPost.title}</h2>
-        <p>{featuredPost.excerpt}</p>
-        <div class="post-meta">
-          <span class="item">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
-            {formatDate(featuredPost.publishedAt)}
-          </span>
-          <span class="dot"></span>
-          {featuredPost.readTime && <span class="item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> {featuredPost.readTime} min de leitura</span>}
+  {featuredPost && (
+    <div class="hero-post-wrap">
+      <a href={`/blog/${getSlug(featuredPost)}/`} class="hero-post">
+        <div class={`hero-post-img${featuredCover ? ' has-cover' : ''}`}>
+          {featuredCover && <img class="cover-img" src={featuredCover} alt={featuredPost.title} loading="eager" />}
+          <div class="badge">Em destaque</div>
+          {!featuredCover && (
+            <div class="glyph">
+              <svg viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+            </div>
+          )}
         </div>
-      </div>
-    </a>
-  </div>
+        <div class="hero-post-content">
+          <span class="post-category">{getCategory(featuredPost)}</span>
+          <h2>{featuredPost.title}</h2>
+          <p>{featuredPost.excerpt}</p>
+          <div class="post-meta">
+            <span class="item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+              {formatDate(featuredPost.publishedAt)}
+            </span>
+            <span class="dot"></span>
+            {featuredPost.readTime && <span class="item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> {featuredPost.readTime} min de leitura</span>}
+          </div>
+        </div>
+      </a>
+    </div>
+  )}
 
   <div class="blog-body">
     <div>
       <div class="filter-row">
         <span class="section-label">Posts recentes</span>
         <div class="filter-pills">
-          {categories.map((cat) => (
-            <button class={`pill${cat === 'Todos' ? ' active' : ''}`} data-filter={cat}>{cat}</button>
+          {PILLS.map((p) => (
+            <a class={`pill${p.slug === catParam ? ' active' : ''}`} href={catHref(p.slug)}>{p.label}</a>
           ))}
         </div>
       </div>
@@ -284,7 +321,7 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
 
       <div class="pagination">
         {currentPage > 1 ? (
-          <a class="pag-btn with-icon" href={`/blog/?p=${currentPage - 1}`}>
+          <a class="pag-btn with-icon" href={pageHref(currentPage - 1)}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
             Anterior
           </a>
@@ -297,10 +334,10 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
           n === currentPage
             ? <span class="pag-btn active">{n}</span>
-            : <a class="pag-btn" href={`/blog/?p=${n}`}>{n}</a>
+            : <a class="pag-btn" href={pageHref(n)}>{n}</a>
         ))}
         {currentPage < totalPages ? (
-          <a class="pag-btn with-icon" href={`/blog/?p=${currentPage + 1}`}>
+          <a class="pag-btn with-icon" href={pageHref(currentPage + 1)}>
             Próxima
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </a>
@@ -317,12 +354,12 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       <div class="sidebar-block">
         <div class="sidebar-title">Categorias</div>
         <ul class="cat-list">
-          <li><a href="#" data-cat="trafego-pago"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Tráfego pago</span><span class="cat-count">{categoryCounts['Tráfego pago'] ?? 0}</span></a></li>
-          <li><a href="#" data-cat="automacao-ia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg> Automação & IA</span><span class="cat-count">{categoryCounts['Automação & IA'] ?? 0}</span></a></li>
-          <li><a href="#" data-cat="email-marketing"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> E-mail marketing</span><span class="cat-count">{categoryCounts['E-mail marketing'] ?? 0}</span></a></li>
-          <li><a href="#" data-cat="estrategia"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"/></svg> Estratégia & funil</span><span class="cat-count">{categoryCounts['Estratégia & funil'] ?? 0}</span></a></li>
-          <li><a href="#" data-cat="cases"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Cases & bastidores</span><span class="cat-count">{categoryCounts['Cases & bastidores'] ?? 0}</span></a></li>
-          <li><a href="#" data-cat="diagnostico"><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V9"/><path d="M11 16v-5"/><path d="M15 16v-7"/><path d="M19 16v-3"/></svg> Diagnóstico & dados</span><span class="cat-count">{categoryCounts['Diagnóstico & dados'] ?? 0}</span></a></li>
+          <li><a href={catHref('trafego-pago')}><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Tráfego pago</span><span class="cat-count">{categoryCounts['Tráfego pago'] ?? 0}</span></a></li>
+          <li><a href={catHref('automacao-ia')}><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg> Automação & IA</span><span class="cat-count">{categoryCounts['Automação & IA'] ?? 0}</span></a></li>
+          <li><a href={catHref('email-marketing')}><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> E-mail marketing</span><span class="cat-count">{categoryCounts['E-mail marketing'] ?? 0}</span></a></li>
+          <li><a href={catHref('estrategia')}><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"/></svg> Estratégia & funil</span><span class="cat-count">{categoryCounts['Estratégia & funil'] ?? 0}</span></a></li>
+          <li><a href={catHref('cases')}><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Cases & bastidores</span><span class="cat-count">{categoryCounts['Cases & bastidores'] ?? 0}</span></a></li>
+          <li><a href={catHref('diagnostico')}><span class="cat-name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16V9"/><path d="M11 16v-5"/><path d="M15 16v-7"/><path d="M19 16v-3"/></svg> Diagnóstico & dados</span><span class="cat-count">{categoryCounts['Diagnóstico & dados'] ?? 0}</span></a></li>
         </ul>
       </div>
 
@@ -356,41 +393,6 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
 
   <Fragment slot="scripts">
     <script>
-      // ── Category filter ──
-      function applyFilter(filter: string) {
-        document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
-        const activePill = [...document.querySelectorAll('.pill')]
-          .find(p => (p as HTMLElement).dataset.filter === filter);
-        if (activePill) activePill.classList.add('active');
-        document.querySelectorAll('#post-grid .post-card').forEach((card: any) => {
-          const cat = card.dataset.category || '';
-          const show = filter === 'Todos' || cat.toLowerCase().includes(filter.toLowerCase());
-          card.style.display = show ? '' : 'none';
-        });
-      }
-
-      document.querySelectorAll('.pill').forEach(p => {
-        p.addEventListener('click', () => applyFilter((p as HTMLElement).dataset.filter || 'Todos'));
-      });
-
-      const catMap: Record<string, string> = {
-        'trafego-pago': 'Tráfego pago',
-        'automacao-ia': 'Automação & IA',
-        'email-marketing': 'E-mail',
-        'estrategia': 'Estratégia',
-        'cases': 'Cases',
-        'diagnostico': 'Todos',
-      };
-
-      document.querySelectorAll('.cat-list a').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const cat = (link as HTMLElement).dataset.cat || '';
-          applyFilter(catMap[cat] || 'Todos');
-          document.querySelector('.blog-body')?.scrollIntoView({ behavior: 'smooth' });
-        });
-      });
-
       // ── Newsletter sidebar form ──
       import { subscribeNewsletter } from '../../scripts/newsletter.js';
       const form = document.getElementById('blog-nl-form') as HTMLFormElement | null;
