@@ -1,10 +1,12 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Topbar from '../../components/Topbar.astro';
-import { getPosts, urlFor, getRecentPosts } from '../../lib/sanity';
+import { getPosts, urlFor, getRecentPosts, searchPosts } from '../../lib/sanity';
 
 const page = Number(Astro.url.searchParams.get('p') || 1);
 const catParam = Astro.url.searchParams.get('cat') || '';
+const queryParam = (Astro.url.searchParams.get('q') || '').trim();
+const isSearching = queryParam.length > 0;
 const pageSize = 8;
 
 let allPosts: any[] = [];
@@ -43,25 +45,34 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 const activeCategory = CATEGORY_MAP[catParam] || '';
 
+let baseList: any[] = sourcePosts;
+if (isSearching) {
+  try { baseList = await searchPosts(queryParam); } catch { baseList = []; }
+}
+
 const filteredPosts = activeCategory
-  ? sourcePosts.filter((p: any) => {
+  ? baseList.filter((p: any) => {
       const cats = Array.isArray(p.categories) ? p.categories : (p.category ? [p.category] : []);
       return cats.some((c: string) => c === activeCategory);
     })
-  : sourcePosts;
+  : baseList;
 
 const POSTS_PER_PAGE = 8;
-const totalPages = filteredPosts.length <= 9
+const totalPages = isSearching
   ? 1
-  : 1 + Math.ceil((filteredPosts.length - 9) / POSTS_PER_PAGE);
+  : filteredPosts.length <= 9
+    ? 1
+    : 1 + Math.ceil((filteredPosts.length - 9) / POSTS_PER_PAGE);
 const currentPage = Math.min(Math.max(1, page), totalPages);
-const featuredPost = currentPage === 1 ? filteredPosts[0] : null;
-const gridPosts = currentPage === 1
-  ? filteredPosts.slice(1, 9)
-  : filteredPosts.slice(
-      9 + (currentPage - 2) * POSTS_PER_PAGE,
-      9 + (currentPage - 1) * POSTS_PER_PAGE,
-    );
+const featuredPost = !isSearching && currentPage === 1 ? filteredPosts[0] : null;
+const gridPosts = isSearching
+  ? filteredPosts
+  : currentPage === 1
+    ? filteredPosts.slice(1, 9)
+    : filteredPosts.slice(
+        9 + (currentPage - 2) * POSTS_PER_PAGE,
+        9 + (currentPage - 1) * POSTS_PER_PAGE,
+      );
 
 const categoryCounts: Record<string, number> = {};
 for (const p of sourcePosts) {
@@ -72,20 +83,19 @@ for (const p of sourcePosts) {
 function pageHref(n: number) {
   const params = new URLSearchParams();
   if (catParam) params.set('cat', catParam);
+  if (queryParam) params.set('q', queryParam);
   if (n > 1) params.set('p', String(n));
   const qs = params.toString();
   return qs ? `/blog/?${qs}` : '/blog/';
 }
-function catHref(slug: string) { return slug ? `/blog/?cat=${slug}` : '/blog/'; }
-
-const PILLS: Array<{ label: string; slug: string }> = [
-  { label: 'Todos',          slug: '' },
-  { label: 'Tráfego pago',   slug: 'trafego-pago' },
-  { label: 'Automação & IA', slug: 'automacao-ia' },
-  { label: 'E-mail',         slug: 'email-marketing' },
-  { label: 'Estratégia',     slug: 'estrategia' },
-  { label: 'Cases',          slug: 'cases' },
-];
+function catHref(slug: string) {
+  const params = new URLSearchParams();
+  if (slug) params.set('cat', slug);
+  if (queryParam) params.set('q', queryParam);
+  const qs = params.toString();
+  return qs ? `/blog/?${qs}` : '/blog/';
+}
+const clearSearchHref = catParam ? `/blog/?cat=${catParam}` : '/blog/';
 
 function formatDate(dateStr: string) {
   try {
@@ -168,10 +178,12 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
       .filter-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--sp-4); margin-bottom: var(--sp-8); padding-bottom: var(--sp-5); border-bottom: 1px solid var(--border); }
       .section-label { font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; color: var(--fg-subtle); display: inline-flex; align-items: center; gap: var(--sp-3); }
       .section-label::before { content: ''; display: inline-block; width: 18px; height: 1px; background: var(--fg-subtle); opacity: .5; }
-      .filter-pills { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
-      .pill { padding: 6px 14px; border-radius: var(--r-pill); font-family: var(--font-display); font-size: 11px; font-weight: 600; cursor: pointer; transition: all var(--dur-fast) var(--ease-out); text-transform: uppercase; letter-spacing: 1.2px; border: 1px solid var(--border); color: var(--fg-muted); background: transparent; }
-      .pill:hover { border-color: var(--accent-strong); color: var(--fg); }
-      .pill.active { background: var(--og-deep-800); color: #fff; border-color: var(--og-deep-800); }
+      .blog-search { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--border); border-radius: var(--r-pill); padding: 4px 4px 4px 14px; min-width: 240px; transition: border-color var(--dur-fast) var(--ease-out); }
+      .blog-search:focus-within { border-color: var(--accent-strong); }
+      .blog-search input { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; font-family: var(--font-text); font-size: 13px; color: var(--fg); padding: 2px 0; }
+      .blog-search input::placeholder { color: var(--fg-subtle); }
+      .blog-search-btn, .blog-search-clear { display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 0; cursor: pointer; color: var(--fg-muted); padding: 4px; border-radius: 50%; transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }
+      .blog-search-btn:hover, .blog-search-clear:hover { color: var(--fg); background: var(--og-mist-100); }
 
       .post-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-8) var(--sp-6); }
       @media (min-width: 640px) { .post-grid { grid-template-columns: 1fr 1fr; } }
@@ -295,12 +307,24 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
   <div class="blog-body">
     <div>
       <div class="filter-row">
-        <span class="section-label">Posts recentes</span>
-        <div class="filter-pills">
-          {PILLS.map((p) => (
-            <a class={`pill${p.slug === catParam ? ' active' : ''}`} href={catHref(p.slug)}>{p.label}</a>
-          ))}
-        </div>
+        <span class="section-label">
+          {isSearching
+            ? `${filteredPosts.length} resultado${filteredPosts.length === 1 ? '' : 's'} para "${queryParam}"`
+            : 'Posts recentes'}
+        </span>
+        <form class="blog-search" method="get" action="/blog/">
+          {catParam && <input type="hidden" name="cat" value={catParam} />}
+          <input type="text" name="q" placeholder="Buscar artigos..." value={queryParam} aria-label="Buscar artigos" autocomplete="off" />
+          {isSearching ? (
+            <a class="blog-search-clear" href={clearSearchHref} aria-label="Limpar busca">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </a>
+          ) : (
+            <button type="submit" class="blog-search-btn" aria-label="Buscar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+          )}
+        </form>
       </div>
 
       <div class={`post-grid${featuredPost ? '' : ' no-featured'}`} id="post-grid">
@@ -331,35 +355,37 @@ const featuredCover = getCoverUrl(featuredPost, 960, 720);
         })}
       </div>
 
-      <div class="pagination">
-        {currentPage > 1 ? (
-          <a class="pag-btn with-icon" href={pageHref(currentPage - 1)}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-            Anterior
-          </a>
-        ) : (
-          <span class="pag-btn with-icon" style="opacity:.4;cursor:not-allowed;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-            Anterior
-          </span>
-        )}
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-          n === currentPage
-            ? <span class="pag-btn active">{n}</span>
-            : <a class="pag-btn" href={pageHref(n)}>{n}</a>
-        ))}
-        {currentPage < totalPages ? (
-          <a class="pag-btn with-icon" href={pageHref(currentPage + 1)}>
-            Próxima
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </a>
-        ) : (
-          <span class="pag-btn with-icon" style="opacity:.4;cursor:not-allowed;">
-            Próxima
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-        )}
-      </div>
+      {!isSearching && (
+        <div class="pagination">
+          {currentPage > 1 ? (
+            <a class="pag-btn with-icon" href={pageHref(currentPage - 1)}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+              Anterior
+            </a>
+          ) : (
+            <span class="pag-btn with-icon" style="opacity:.4;cursor:not-allowed;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+              Anterior
+            </span>
+          )}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+            n === currentPage
+              ? <span class="pag-btn active">{n}</span>
+              : <a class="pag-btn" href={pageHref(n)}>{n}</a>
+          ))}
+          {currentPage < totalPages ? (
+            <a class="pag-btn with-icon" href={pageHref(currentPage + 1)}>
+              Próxima
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          ) : (
+            <span class="pag-btn with-icon" style="opacity:.4;cursor:not-allowed;">
+              Próxima
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </span>
+          )}
+        </div>
+      )}
     </div>
 
     <aside class="sidebar">

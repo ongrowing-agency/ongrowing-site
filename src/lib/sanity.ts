@@ -51,6 +51,16 @@ export async function getPost(slug: string) {
   `, { slug });
 }
 
+export async function searchPosts(query: string) {
+  return sanityClient.fetch(`
+    *[_type == "post" && (title match $q || excerpt match $q || pt::text(body) match $q)] | order(publishedAt desc) {
+      _id, title, slug, excerpt, publishedAt, categories,
+      cover { asset-> },
+      "readTime": round(length(pt::text(body)) / 5 / 180)
+    }
+  `, { q: `${query}*` });
+}
+
 export async function getRecentPosts(limit = 4) {
   return sanityClient.fetch(`
     *[_type == "post"] | order(publishedAt desc) [0...$limit] {
