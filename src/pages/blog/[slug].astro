@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Topbar from '../../components/Topbar.astro';
-import { getPost, urlFor } from '../../lib/sanity';
+import { getPost, urlFor, getRelatedPosts } from '../../lib/sanity';
 import { toHTML } from '@portabletext/to-html';
 
 const { slug } = Astro.params;
@@ -11,6 +11,11 @@ try {
   post = await getPost(slug!);
 } catch {
   // use fallback
+}
+
+let relatedReads: any[] = [];
+if (post?.slug?.current && Array.isArray(post.categories) && post.categories.length > 0) {
+  try { relatedReads = await getRelatedPosts(post.slug.current, post.categories); } catch {}
 }
 
 const fallbackPost = {
@@ -212,6 +217,20 @@ function formatDate(dateStr: string) {
       .share-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--bg-elevated); color: var(--fg-muted); text-decoration: none; transition: all var(--dur-fast) var(--ease-out); cursor: pointer; }
       .share-btn:hover { background: var(--og-deep-800); color: #fff; border-color: var(--og-deep-800); }
 
+      .related-block { margin: var(--sp-12) 0; padding: var(--sp-6) 0; }
+      .related-block-label { font-family: var(--font-display); font-size: 11px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; color: var(--fg-subtle); margin-bottom: var(--sp-6); display: block; }
+      .related-block-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-6); }
+      @media (min-width: 769px) { .related-block-grid { grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); } }
+      .related-block-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: transform var(--dur-base) var(--ease-out); }
+      .related-block-card:hover { transform: translateY(-2px); }
+      .related-block-img { aspect-ratio: 16/9; border-radius: 12px; background: var(--og-deep-800); overflow: hidden; position: relative; margin-bottom: var(--sp-3); }
+      .related-block-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .related-block-tag { position: absolute; top: var(--sp-3); left: var(--sp-3); font-family: var(--font-display); font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); background: rgba(121,217,199,.1); border: 1px solid rgba(121,217,199,.22); padding: 4px 10px; border-radius: var(--r-pill); backdrop-filter: blur(8px); }
+      .related-block-card h4 { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--fg); line-height: 1.3; margin: var(--sp-2) 0; letter-spacing: -.2px; transition: color var(--dur-fast) var(--ease-out); }
+      .related-block-card:hover h4 { color: var(--accent-strong); }
+      .related-block-excerpt { font-family: var(--font-text); font-size: 14px; color: var(--fg-muted); line-height: 1.5; margin-bottom: var(--sp-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .related-block-date { font-family: var(--font-display); font-size: 11px; color: var(--fg-subtle); font-weight: 500; letter-spacing: .2px; }
+
       .author-bio { margin: var(--sp-10) 0; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-6); display: grid; grid-template-columns: 64px 1fr; gap: var(--sp-5); align-items: start; }
       @media (min-width: 768px) { .author-bio { padding: var(--sp-10); border-radius: var(--r-xl); grid-template-columns: 96px 1fr; gap: var(--sp-8); margin: var(--sp-12) 0; } }
       .author-bio .big-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--og-deep-800); display: flex; align-items: center; justify-content: center; color: var(--accent); font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: .5px; position: relative; overflow: hidden; }
@@ -353,6 +372,31 @@ function formatDate(dateStr: string) {
           </button>
         </div>
       </div>
+
+      {relatedReads.length > 0 && (
+        <div class="related-block">
+          <span class="related-block-label">Leia também</span>
+          <div class="related-block-grid">
+            {relatedReads.map((rel: any) => {
+              const cover = rel.cover?.asset
+                ? urlFor(rel.cover).width(640).height(360).fit('crop').auto('format').url()
+                : null;
+              const cat = rel.categories?.[0] || '';
+              return (
+                <a href={`/blog/${rel.slug?.current || rel.slug}/`} class="related-block-card">
+                  <div class="related-block-img">
+                    {cover && <img src={cover} alt={rel.title} loading="lazy" />}
+                    {cat && <span class="related-block-tag">{cat}</span>}
+                  </div>
+                  <h4>{rel.title}</h4>
+                  {rel.excerpt && <p class="related-block-excerpt">{rel.excerpt}</p>}
+                  <span class="related-block-date">{formatDate(rel.publishedAt)}</span>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div class="author-bio" id="autor">
         <div class="big-avatar">VS</div>

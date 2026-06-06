@@ -51,6 +51,16 @@ export async function getPost(slug: string) {
   `, { slug });
 }
 
+export async function getRelatedPosts(currentSlug: string, categories: string[]) {
+  if (!categories || categories.length === 0) return [];
+  return sanityClient.fetch(`
+    *[_type == "post" && slug.current != $currentSlug && count(categories[@ in $cats]) > 0]
+    | order(publishedAt desc) [0..2] {
+      title, slug, excerpt, cover { asset-> }, categories, publishedAt
+    }
+  `, { currentSlug, cats: categories });
+}
+
 export async function searchPosts(query: string) {
   return sanityClient.fetch(`
     *[_type == "post" && (title match $q || excerpt match $q || pt::text(body) match $q)] | order(publishedAt desc) {
